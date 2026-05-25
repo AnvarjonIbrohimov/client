@@ -1,17 +1,20 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 function Header() {
 	const location = useLocation();
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+	const { user, logout } = useAuth();
 	const navLinks = [
 		{ path: '/', label: 'Home' },
 		{ path: '/products', label: 'Products' },
-		{ path: '/orders', label: 'Orders' },
-		{ path: '/mypage', label: 'My Page' },
 		{ path: '/help', label: 'Help' },
 	];
+
+	if (user) {
+		navLinks.push({ path: '/orders', label: 'Orders' }, { path: '/mypage', label: 'My Page' });
+	}
 
 	return (
 		<header className="header">
@@ -34,6 +37,18 @@ function Header() {
 						</Link>
 					))}
 				</nav>
+				<div className="auth-buttons">
+					{user ? (
+						<button onClick={logout} className="logout-btn">
+							Logout
+						</button>
+					) : (
+						<>
+							<Link to="/login">Login</Link>
+							<Link to="/signup">Signup</Link>
+						</>
+					)}
+				</div>
 
 				{/* MOBILE BUTTON */}
 				<button className="menu-btn" onClick={() => setIsMenuOpen(!isMenuOpen)}>

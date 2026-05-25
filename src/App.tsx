@@ -7,6 +7,7 @@ import UsersPage from './pages/UsersPage';
 import OrdersPage from './pages/OrdersPage';
 import MyPage from './pages/MyPage';
 import HelpPage from './pages/Help';
+import { AuthProvider } from './context/AuthContext';
 // ... boshqa sahifalar
 
 const queryClient = new QueryClient();
@@ -14,6 +15,7 @@ const queryClient = new QueryClient();
 function App() {
 	return (
 		<QueryClientProvider client={queryClient}>
+			<AuthProvider>
 			<BrowserRouter>
 				<Routes>
 					<Route element={<Layout />}>
@@ -25,7 +27,8 @@ function App() {
 						<Route path="/mypage" element={<MyPage />} />
 					</Route>
 				</Routes>
-			</BrowserRouter>
+				</BrowserRouter>
+			</AuthProvider>
 		</QueryClientProvider>
 	);
 }
