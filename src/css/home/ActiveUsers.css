@@ -1,0 +1,53 @@
+.active-users {
+	width: 100%;
+	padding: 40px 20px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.title {
+	font-size: 32px;
+	font-weight: bold;
+	margin-bottom: 25px;
+}
+
+/* 5 ta katta card */
+.users-grid {
+	display: grid;
+	grid-template-columns: repeat(5, 1fr);
+	gap: 20px;
+	width: 100%;
+	max-width: 1200px;
+}
+
+/* CARD */
+.user-card {
+	background: #fff;
+	border-radius: 16px;
+	overflow: hidden;
+	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+	transition: 0.3s;
+	cursor: pointer;
+	text-align: center;
+}
+
+.user-card:hover {
+	transform: translateY(-6px);
+	box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+}
+
+/* BIG IMAGE */
+.user-card img {
+	width: 100%;
+	height: 200px; /* 🔥 KATTA IMAGE */
+	object-fit: cover;
+	display: block;
+}
+
+/* NAME */
+.user-card p {
+	padding: 12px;
+	font-size: 16px;
+	font-weight: 600;
+}
