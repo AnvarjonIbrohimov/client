@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import '../../css/products/product.css';
+import { useOrders } from '../../context/Ordercontext';
 import { BADGE_COLORS, CATEGORIES, COLLECTIONS, SIZE_CATEGORIES, type Product } from '../../types/product';
-import { ProductCollection, ProductSize } from '../../enums/prodcut.enum';
-import { ProductCategory } from '../../enums/prodcut.enum';
+import { ProductCategory, ProductCollection, ProductSize } from '../../enums/prodcut.enum';
 
 // ─── Mock Data ───────────────────────────────────────────────────────────────
 const PRODUCTS: Product[] = [
@@ -141,6 +141,21 @@ const PRODUCTS: Product[] = [
 function ProductCard({ product }: { product: Product }) {
 	const [liked, setLiked] = useState(false);
 	const [viewed, setViewed] = useState(false);
+	const { addOrder, isOrdered } = useOrders();
+	const ordered = isOrdered(product.id);
+
+	const handleCart = () => {
+		if (ordered) return;
+		addOrder({
+			productId: product.id,
+			name: product.name,
+			price: product.price,
+			image: product.image,
+			collection: product.collection,
+			category: product.category,
+			size: product.sizes?.[0],
+		});
+	};
 
 	return (
 		<div className="p-card">
@@ -173,7 +188,13 @@ function ProductCard({ product }: { product: Product }) {
 				<h3 className="p-card__name">{product.name}</h3>
 				<div className="p-card__bottom">
 					<span className="p-card__price">{product.price.toLocaleString()} so'm</span>
-					<button className="p-card__cart-btn">+ Cart</button>
+					<button
+						className={`p-card__cart-btn${ordered ? ' p-card__cart-btn--ordered' : ''}`}
+						onClick={handleCart}
+						disabled={ordered}
+					>
+						{ordered ? '✓ Added' : '+ Cart'}
+					</button>
 				</div>
 			</div>
 		</div>
