@@ -8,7 +8,7 @@ export default defineConfig({
 		port: 3000,
 		proxy: {
 			'/api': {
-				target: 'http://localhost:5000', // Sizning backend portingiz
+				target: 'http://localhost:3009', // Sizning backend portingiz
 				changeOrigin: true,
 			},
 		},

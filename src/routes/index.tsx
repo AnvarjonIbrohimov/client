@@ -6,8 +6,8 @@ import HomePage from '../pages/HomePage';
 import ProductsPage from '../pages/ProductsPage';
 import UsersPage from '../pages/UsersPage';
 import MyPage from '../pages/MyPage';
-import QAPage from '../pages/QAPage';
 import OrdersPage from '../pages/OrdersPage';
+import HelpPage from '../pages/Help';
 
 export const router = createBrowserRouter([
 	{
@@ -32,8 +32,8 @@ export const router = createBrowserRouter([
 				element: <OrdersPage />,
 			},
 			{
-				path: 'qa',
-				element: <QAPage />,
+				path: 'help',
+				element: <HelpPage />,
 			},
 			{
 				path: 'mypage',
