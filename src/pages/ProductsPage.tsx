@@ -1,11 +1,13 @@
+import OurAddress from "./productPage/OurAddress";
+import OurBrands from "./productPage/OurBrands";
+import Products from "./productPage/Producrs";
 
 function ProductsPage() {
-
-
 	return (
-		<div className="p-10">
-			<h1 className="mb-6 text-4xl font-bold">Products</h1>
-
+		<div>
+			<Products />
+			<OurBrands />
+			<OurAddress />
 		</div>
 	);
 }
