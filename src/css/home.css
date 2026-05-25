@@ -1,0 +1,10 @@
+.homepage {
+	width: 1300px;
+	min-height: 100vh;
+	background: #ccddcd;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center; /* MUHIM */
+	justify-content: center; /* MUHIM */
+}

@@ -1,5 +1,5 @@
-function Video() {
-	return <div className="text-4xl font-bold">Video</div>;
+function Advertisement() {
+	return <div className="advertisement">Advertisement</div>;
 }
 
-export default Video;
+export default Advertisement;

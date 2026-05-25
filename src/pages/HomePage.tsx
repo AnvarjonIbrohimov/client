@@ -4,10 +4,11 @@ import Electronics from './homepage/Electronics';
 import Fotos from './homepage/Fotos';
 import Books from './homepage/Books';
 import Advertisement from './homepage/Advertisement';
+import '../css/home.css';
 
 function HomePage() {
 	return (
-		<div className="text-4xl font-bold">
+		<div className="homepage">
 			<Fotos />
 			<Clothes />
 			<Books />

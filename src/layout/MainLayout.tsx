@@ -4,11 +4,13 @@ import Footer from '../components/Footer';
 
 function Layout() {
 	return (
-		<div className="flex min-h-screen flex-col">
+		<div className="page-wrapper">
 			<Header />
-			<main className="flex-1">
+
+			<main className="container">
 				<Outlet />
 			</main>
+
 			<Footer />
 		</div>
 	);
