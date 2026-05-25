@@ -20,9 +20,10 @@ function Header() {
 	const navLinks = [
 		{ path: '/', label: 'Home' },
 		{ path: '/products', label: 'Products' },
+		{ path: '/product/:id', label: 'Product Detail' },
 		{ path: '/users', label: 'Users' },
 		{ path: '/orders', label: 'Orders' },
-		{ path: '/qa', label: 'Q&A' },
+		{ path: '/help', label: 'Help' },
 		{ path: '/mypage', label: 'My Page' },
 	];
 
