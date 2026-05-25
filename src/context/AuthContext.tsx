@@ -15,7 +15,11 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-	const [user, setUser] = useState<Member | null>(null);
+	const [user, setUser] = useState<Member | null>({
+		_id: '1',
+		memberNick: 'Anvarjon',
+		memberImage: '',
+	});
 
 	useEffect(() => {
 		const storedUser = localStorage.getItem('user');
