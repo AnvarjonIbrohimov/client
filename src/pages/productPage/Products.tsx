@@ -1,201 +1,116 @@
-import { useState } from 'react';
-import '../../css/products/product.css';
-import { useOrders } from '../../context/OrderContext';
-import { BADGE_COLORS, CATEGORIES, COLLECTIONS, SIZE_CATEGORIES, type Product } from '../../types/product';
-import { ProductCategory, ProductCollection, ProductSize } from '../../enums/prodcut.enum';
+import { useState, useEffect, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { Heart, ShoppingCart, CheckCircle } from 'lucide-react';
+import { api, BASE_URL } from '../../libs/config';
+import { useOrders } from '../../context/OrderContext';
+import { useAuth } from '../../context/AuthContext';
+import { useLike } from '../../hooks/useLike';
+import { BADGE_COLORS, CATEGORIES, COLLECTIONS, SIZE_CATEGORIES } from '../../types/product';
+import { ProductCategory, ProductCollection, ProductSize } from '../../enums/prodcut.enum';
+import '../../css/products/product.css';
 
-// ─── Mock Data ───────────────────────────────────────────────────────────────
-const PRODUCTS: Product[] = [
-	{
-		id: 1,
-		name: 'Classic Hoodie',
-		price: 89000,
-		image: 'https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=400&q=80',
-		collection: ProductCollection.POPULAR,
-		category: ProductCategory.MEN,
-		sizes: [ProductSize.S, ProductSize.M, ProductSize.L],
-	},
-	{
-		id: 2,
-		name: 'Slim Fit Jeans',
-		price: 120000,
-		image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&q=80',
-		collection: ProductCollection.NEW,
-		category: ProductCategory.MEN,
-		sizes: [ProductSize.M, ProductSize.L, ProductSize.XL],
-	},
-	{
-		id: 3,
-		name: 'Oxford Shirt',
-		price: 72000,
-		image: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400&q=80',
-		collection: ProductCollection.REGULAR,
-		category: ProductCategory.MEN,
-		sizes: [ProductSize.S, ProductSize.M, ProductSize.L, ProductSize.XL],
-	},
-	{
-		id: 4,
-		name: 'Floral Dress',
-		price: 95000,
-		image: 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400&q=80',
-		collection: ProductCollection.NEW,
-		category: ProductCategory.WOMEN,
-		sizes: [ProductSize.XS, ProductSize.S, ProductSize.M],
-	},
-	{
-		id: 5,
-		name: 'Leather Jacket',
-		price: 250000,
-		image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&q=80',
-		collection: ProductCollection.POPULAR,
-		category: ProductCategory.WOMEN,
-		sizes: [ProductSize.S, ProductSize.M],
-	},
-	{
-		id: 6,
-		name: 'Summer Blouse',
-		price: 58000,
-		image: 'https://images.unsplash.com/photo-1594938298603-c8148c4b4c5b?w=400&q=80',
-		collection: ProductCollection.SALE,
-		category: ProductCategory.WOMEN,
-		sizes: [ProductSize.XS, ProductSize.S, ProductSize.M, ProductSize.L],
-	},
-	{
-		id: 7,
-		name: 'Kids Sneakers',
-		price: 65000,
-		image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80',
-		collection: ProductCollection.SALE,
-		category: ProductCategory.KIDS,
-		sizes: [ProductSize.XS, ProductSize.S],
-	},
-	{
-		id: 8,
-		name: 'Mini Backpack',
-		price: 78000,
-		image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&q=80',
-		collection: ProductCollection.POPULAR,
-		category: ProductCategory.KIDS,
-		sizes: [ProductSize.M],
-	},
-	{
-		id: 9,
-		name: 'Kids Hoodie',
-		price: 49000,
-		image: 'https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?w=400&q=80',
-		collection: ProductCollection.NEW,
-		category: ProductCategory.KIDS,
-		sizes: [ProductSize.XS, ProductSize.S],
-	},
-	{
-		id: 10,
-		name: 'Wireless Earbuds',
-		price: 199000,
-		image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&q=80',
-		collection: ProductCollection.NEW,
-		category: ProductCategory.ELECTRONICS,
-	},
-	{
-		id: 11,
-		name: 'Smart Watch',
-		price: 450000,
-		image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80',
-		collection: ProductCollection.POPULAR,
-		category: ProductCategory.ELECTRONICS,
-	},
-	{
-		id: 12,
-		name: 'Mechanical KB',
-		price: 320000,
-		image: 'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=400&q=80',
-		collection: ProductCollection.NEW,
-		category: ProductCategory.ELECTRONICS,
-	},
-	{
-		id: 13,
-		name: 'Atomic Habits',
-		price: 45000,
-		image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&q=80',
-		collection: ProductCollection.POPULAR,
-		category: ProductCategory.BOOKS,
-	},
-	{
-		id: 14,
-		name: 'Clean Code',
-		price: 55000,
-		image: 'https://images.unsplash.com/photo-1589998059171-988d887df646?w=400&q=80',
-		collection: ProductCollection.REGULAR,
-		category: ProductCategory.BOOKS,
-	},
-	{
-		id: 15,
-		name: 'Design Thinking',
-		price: 38000,
-		image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&q=80',
-		collection: ProductCollection.SALE,
-		category: ProductCategory.BOOKS,
-	},
-];
+// ─── Types ────────────────────────────────────────────────────────────────────
+interface ApiProduct {
+	_id: string;
+	productName: string;
+	productPrice: number;
+	productImages: string[];
+	productCollection: ProductCollection;
+	productCategory: ProductCategory;
+	productSize?: ProductSize;
+	productDesc?: string;
+	productViews: number;
+	productLeftCount: number;
+	productStatus: string;
+}
 
-// ─── ProductCard ─────────────────────────────────────────────────────────────
-function ProductCard({ product }: { product: Product }) {
-	const [liked, setLiked] = useState(false);
-	const [viewed, setViewed] = useState(false);
-	const { addOrder, isOrdered } = useOrders();
-	const ordered = isOrdered(product.id);
+// ─── API fetch ────────────────────────────────────────────────────────────────
+const fetchProducts = async (): Promise<ApiProduct[]> => {
+	const { data } = await api.get('/product/all');
+	return Array.isArray(data) ? data : (data.data ?? []);
+};
+
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+function ProductSkeleton() {
+	return (
+		<div className="p-card p-card--skeleton">
+			<div className="p-skeleton__img" />
+			<div className="p-card__content">
+				<div className="p-skeleton__line p-skeleton__line--long" />
+				<div className="p-skeleton__line p-skeleton__line--short" />
+			</div>
+		</div>
+	);
+}
+
+// ─── ProductCard ──────────────────────────────────────────────────────────────
+function ProductCard({ product }: { product: ApiProduct }) {
 	const navigate = useNavigate();
+	const { addOrder, isOrdered } = useOrders();
+	const { token } = useAuth();
+	const ordered = isOrdered(product._id as any);
+	const { liked, toggleLike } = useLike('PRODUCT', product._id, token);
 
-	const handleCart = () => {
+	const imageUrl = product.productImages?.[0]
+		? `${BASE_URL}${product.productImages[0]}`
+		: 'https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=400&q=80';
+
+	const badgeColor = BADGE_COLORS[product.productCollection] ?? '#888';
+
+	const handleCart = (e: React.MouseEvent) => {
+		e.stopPropagation();
 		if (ordered) return;
 		addOrder({
-			productId: product.id,
-			name: product.name,
-			price: product.price,
-			image: product.image,
-			collection: product.collection,
-			category: product.category,
-			size: product.sizes?.[0],
+			productId: product._id as any,
+			name: product.productName,
+			price: product.productPrice,
+			image: imageUrl,
+			collection: product.productCollection,
+			category: product.productCategory,
+			size: product.productSize,
 		});
 	};
 
-	return (
-		<div className="p-card" onClick={() => navigate(`/products/${product.id}`)}>
-			<div className="p-card__image-box">
-				<img src={product.image} alt={product.name} />
+	const handleLike = (e: React.MouseEvent) => {
+		e.stopPropagation();
+		toggleLike();
+	};
 
-				<span className="p-card__badge" style={{ backgroundColor: BADGE_COLORS[product.collection] }}>
-					{product.collection}
+	return (
+		<div className="p-card" onClick={() => navigate(`/product/${product._id}`)}>
+			<div className="p-card__image-box">
+				<img src={imageUrl} alt={product.productName} />
+
+				<span className="p-card__badge" style={{ backgroundColor: badgeColor }}>
+					{product.productCollection}
 				</span>
 
 				<div className="p-card__icons">
-					<button
-						className={`p-card__icon-btn${liked ? ' active-like' : ''}`}
-						onClick={() => setLiked((v) => !v)}
-						aria-label="Like"
-					>
-						♥
-					</button>
-					<button
-						className={`p-card__icon-btn${viewed ? ' active-view' : ''}`}
-						onClick={() => setViewed((v) => !v)}
-						aria-label="View"
-					>
-						👁
+					<button className={`p-card__icon-btn${liked ? ' active-like' : ''}`} onClick={handleLike} aria-label="Like">
+						<Heart size={12} strokeWidth={2} fill={liked ? 'currentColor' : 'none'} />
 					</button>
 				</div>
 			</div>
 
 			<div className="p-card__content">
-				<h3 className="p-card__name">{product.name}</h3>
+				<h3 className="p-card__name">{product.productName}</h3>
 				<div className="p-card__bottom">
-					<span className="p-card__price">{product.price.toLocaleString()} so'm</span>
+					<span className="p-card__price">${product.productPrice}</span>
 					<button
 						className={`p-card__cart-btn${ordered ? ' p-card__cart-btn--ordered' : ''}`}
 						onClick={handleCart}
 						disabled={ordered}
 					>
-						{ordered ? '✓ Added' : '+ Cart'}
+						{ordered ? (
+							<>
+								<CheckCircle size={11} strokeWidth={2.5} /> Added
+							</>
+						) : (
+							<>
+								<ShoppingCart size={11} strokeWidth={2.5} /> Cart
+							</>
+						)}
 					</button>
 				</div>
 			</div>
@@ -203,14 +118,25 @@ function ProductCard({ product }: { product: Product }) {
 	);
 }
 
-// ─── Products ────────────────────────────────────────────────────────────────
+// ─── Products ─────────────────────────────────────────────────────────────────
 function Products() {
 	const [searchQuery, setSearchQuery] = useState('');
+	const [searchInput, setSearchInput] = useState('');
 	const [selectedCategory, setSelectedCategory] = useState<ProductCategory>(ProductCategory.MEN);
 	const [selectedCollection, setSelectedCollection] = useState<ProductCollection>(ProductCollection.POPULAR);
 	const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
+	const searchRef = useRef<HTMLInputElement>(null);
 
 	const showSizes = SIZE_CATEGORIES.has(selectedCategory);
+
+	const {
+		data: allProducts,
+		isLoading,
+		isError,
+	} = useQuery({
+		queryKey: ['products-all'],
+		queryFn: fetchProducts,
+	});
 
 	const handleCategoryChange = (cat: ProductCategory) => {
 		setSelectedCategory(cat);
@@ -221,11 +147,17 @@ function Products() {
 		setSelectedSize((prev) => (prev === size ? null : size));
 	};
 
-	const filtered = PRODUCTS.filter((p) => {
-		if (p.category !== selectedCategory) return false;
-		if (p.collection !== selectedCollection) return false;
-		if (searchQuery && !p.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-		if (selectedSize && !(p.sizes ?? []).includes(selectedSize)) return false;
+	const handleSearch = () => {
+		setSearchQuery(searchInput.trim());
+	};
+
+	// filter
+	const filtered = (allProducts ?? []).filter((p) => {
+		if (p.productCategory !== selectedCategory) return false;
+		if (p.productCollection !== selectedCollection) return false;
+		if (searchQuery && !p.productName.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+		if (selectedSize && p.productSize !== selectedSize) return false;
+		if (p.productStatus === 'HIDDEN') return false;
 		return true;
 	});
 
@@ -242,13 +174,17 @@ function Products() {
 
 				<div className="products-header__search">
 					<input
+						ref={searchRef}
 						type="text"
 						placeholder="Type here"
-						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
+						value={searchInput}
+						onChange={(e) => setSearchInput(e.target.value)}
+						onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
 						className="products-header__input"
 					/>
-					<button className="products-header__search-btn">SEARCH</button>
+					<button className="products-header__search-btn" onClick={handleSearch}>
+						SEARCH
+					</button>
 				</div>
 			</header>
 
@@ -265,7 +201,7 @@ function Products() {
 				))}
 			</nav>
 
-			{/* ── Size filter (conditional) ── */}
+			{/* ── Size filter ── */}
 			<div className={`products-sizes${showSizes ? ' visible' : ''}`}>
 				<span className="products-sizes__label">Size</span>
 				{Object.values(ProductSize).map((size) => (
@@ -281,7 +217,7 @@ function Products() {
 
 			<div className="products-divider" />
 
-			{/* ── Main: sidebar + grid ── */}
+			{/* ── Main ── */}
 			<div className="products-main">
 				{/* Collection sidebar */}
 				<aside className="products-sidebar">
@@ -303,11 +239,15 @@ function Products() {
 
 				{/* Product grid */}
 				<div className="products-grid">
-					{filtered.slice(0, 10).map((p) => (
-						<ProductCard key={p.id} product={p} />
-					))}
+					{isLoading && Array.from({ length: 10 }).map((_, i) => <ProductSkeleton key={i} />)}
 
-					{filtered.length === 0 && <div className="products-grid__empty">No products found</div>}
+					{isError && <div className="products-grid__empty">Failed to load products.</div>}
+
+					{!isLoading && !isError && filtered.slice(0, 10).map((p) => <ProductCard key={p._id} product={p} />)}
+
+					{!isLoading && !isError && filtered.length === 0 && (
+						<div className="products-grid__empty">No products found</div>
+					)}
 				</div>
 			</div>
 		</div>
