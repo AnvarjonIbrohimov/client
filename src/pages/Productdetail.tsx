@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../libs/config';
 import {
 	ArrowLeft,
 	Heart,
@@ -14,193 +16,42 @@ import {
 	CheckCircle,
 } from 'lucide-react';
 import { useOrders } from '../context/OrderContext';
+import { useLike } from '../hooks/useLike';
+import { BASE_URL } from '../libs/config';
 import '../css/Productdetail.css';
-import type { Product } from '../types/product';
-import { ProductCategory, ProductCollection, ProductSize } from '../enums/prodcut.enum';
+import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
 
-// ─── Mock Data ────────────────────────────────────────────────────────────────
-const PRODUCTS: Product[] = [
-	{
-		id: 1,
-		name: 'Classic Hoodie',
-		price: 89000,
-		images: [
-			'https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=600&q=80',
-			'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80',
-			'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80',
-			'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80',
-		],
-		collection: ProductCollection.POPULAR,
-		category: ProductCategory.MEN,
-		sizes: [ProductSize.S, ProductSize.M, ProductSize.L, ProductSize.XL],
-		description:
-			'A premium classic hoodie crafted from soft cotton blend fabric. Perfect for everyday wear with its relaxed fit and comfortable feel. Features a front pocket and adjustable drawstring hood.',
-		rating: 4.8,
-		reviews: 124,
-		inStock: true,
-	},
-	{
-		id: 2,
-		name: 'Slim Fit Jeans',
-		price: 120000,
-		images: [
-			'https://images.unsplash.com/photo-1542272604-787c3835535d?w=600&q=80',
-			'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=600&q=80',
-			'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&q=80',
-		],
-		collection: ProductCollection.NEW,
-		category: ProductCategory.MEN,
-		sizes: [ProductSize.M, ProductSize.L, ProductSize.XL],
-		description:
-			'Modern slim fit jeans with a comfortable stretch fabric. Classic 5-pocket design with a clean finish that pairs well with any outfit.',
-		rating: 4.6,
-		reviews: 89,
-		inStock: true,
-	},
-	{
-		id: 3,
-		name: 'Floral Dress',
-		price: 95000,
-		images: [
-			'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=600&q=80',
-			'https://images.unsplash.com/photo-1594938298603-c8148c4b4c5b?w=600&q=80',
-			'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=600&q=80',
-		],
-		collection: ProductCollection.NEW,
-		category: ProductCategory.WOMEN,
-		sizes: [ProductSize.XS, ProductSize.S, ProductSize.M],
-		description:
-			'A beautiful floral print dress perfect for spring and summer. Lightweight fabric with a flattering A-line silhouette and hidden side zipper.',
-		rating: 4.9,
-		reviews: 201,
-		inStock: true,
-	},
-	{
-		id: 4,
-		name: 'Leather Jacket',
-		price: 250000,
-		images: [
-			'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&q=80',
-			'https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=600&q=80',
-			'https://images.unsplash.com/photo-1542272604-787c3835535d?w=600&q=80',
-		],
-		collection: ProductCollection.POPULAR,
-		category: ProductCategory.WOMEN,
-		sizes: [ProductSize.S, ProductSize.M],
-		description:
-			'Premium genuine leather jacket with a classic biker style. Features asymmetric zipper, multiple pockets, and a sleek lining for a sophisticated look.',
-		rating: 4.7,
-		reviews: 67,
-		inStock: true,
-	},
-	{
-		id: 5,
-		name: 'Kids Sneakers',
-		price: 65000,
-		images: [
-			'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80',
-			'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80',
-		],
-		collection: ProductCollection.SALE,
-		category: ProductCategory.KIDS,
-		sizes: [ProductSize.XS, ProductSize.S],
-		description:
-			'Durable and comfortable sneakers designed for active kids. Lightweight construction with non-slip sole and easy velcro closure.',
-		rating: 4.5,
-		reviews: 45,
-		inStock: true,
-	},
-	{
-		id: 6,
-		name: 'Mini Backpack',
-		price: 78000,
-		images: [
-			'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80',
-			'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80',
-			'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80',
-		],
-		collection: ProductCollection.POPULAR,
-		category: ProductCategory.KIDS,
-		sizes: [ProductSize.M],
-		description:
-			'Cute and functional mini backpack perfect for school or outings. Padded shoulder straps, multiple compartments, and durable water-resistant material.',
-		rating: 4.4,
-		reviews: 33,
-		inStock: true,
-	},
-	{
-		id: 7,
-		name: 'Wireless Earbuds',
-		price: 199000,
-		images: [
-			'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=600&q=80',
-			'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=600&q=80',
-			'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80',
-		],
-		collection: ProductCollection.NEW,
-		category: ProductCategory.ELECTRONICS,
-		description:
-			'True wireless earbuds with active noise cancellation and 30-hour battery life. Premium sound quality with deep bass and crystal-clear highs.',
-		rating: 4.8,
-		reviews: 312,
-		inStock: true,
-	},
-	{
-		id: 8,
-		name: 'Smart Watch',
-		price: 450000,
-		images: [
-			'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80',
-			'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=600&q=80',
-			'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=600&q=80',
-		],
-		collection: ProductCollection.POPULAR,
-		category: ProductCategory.ELECTRONICS,
-		description:
-			'Feature-packed smartwatch with health monitoring, GPS, and 7-day battery. Water resistant up to 50m with a stunning AMOLED display.',
-		rating: 4.9,
-		reviews: 445,
-		inStock: true,
-	},
-	{
-		id: 9,
-		name: 'Atomic Habits',
-		price: 45000,
-		images: [
-			'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&q=80',
-			'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&q=80',
-		],
-		collection: ProductCollection.POPULAR,
-		category: ProductCategory.BOOKS,
-		description:
-			'The #1 New York Times bestseller. A revolutionary system to get 1% better every day. James Clear shares proven strategies for habit formation.',
-		rating: 4.9,
-		reviews: 1240,
-		inStock: true,
-	},
-	{
-		id: 10,
-		name: 'Clean Code',
-		price: 55000,
-		images: [
-			'https://images.unsplash.com/photo-1589998059171-988d887df646?w=600&q=80',
-			'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&q=80',
-		],
-		collection: ProductCollection.REGULAR,
-		category: ProductCategory.BOOKS,
-		description:
-			'A handbook of agile software craftsmanship by Robert C. Martin. Learn to write clean, readable, and maintainable code with practical examples.',
-		rating: 4.7,
-		reviews: 876,
-		inStock: true,
-	},
-];
+// ─── Types ────────────────────────────────────────────────────────────────────
+interface ApiProduct {
+	_id: string;
+	productName: string;
+	productPrice: number;
+	productImages: string[];
+	productCollection: string;
+	productCategory: string;
+	productDesc?: string;
+	productSize: string;
+	productViews: number;
+	productLeftCount: number;
+	productStatus: string;
+	createdAt: string;
+}
 
-const BADGE_COLORS: Record<ProductCollection, string> = {
-	[ProductCollection.POPULAR]: '#FF6B35',
-	[ProductCollection.NEW]: '#1DB954',
-	[ProductCollection.SALE]: '#E63946',
-	[ProductCollection.REGULAR]: '#4A90D9',
+// ─── Badge colors ─────────────────────────────────────────────────────────────
+const BADGE_COLORS: Record<string, string> = {
+	POPULAR: '#FF6B35',
+	NEW: '#1DB954',
+	SALE: '#E63946',
+	REGULAR: '#4A90D9',
+};
+
+const CAT_COLORS: Record<string, string> = {
+	MEN: '#3b82f6',
+	WOMEN: '#ec4899',
+	KIDS: '#f59e0b',
+	ELECTRONICS: '#8b5cf6',
+	BOOKS: '#10b981',
 };
 
 // ─── ImageGallery ─────────────────────────────────────────────────────────────
@@ -210,18 +61,18 @@ function ImageGallery({ images, name }: { images: string[]; name: string }) {
 	const prev = () => setCurrent((i) => (i === 0 ? images.length - 1 : i - 1));
 	const next = () => setCurrent((i) => (i === images.length - 1 ? 0 : i + 1));
 
+	const imgUrl = (path: string) => (path.startsWith('http') ? path : `${BASE_URL}${path}`);
+
 	return (
 		<div className="pd-gallery">
-			{/* Main image */}
 			<div className="pd-gallery__main">
-				<img src={images[current]} alt={`${name} ${current + 1}`} className="pd-gallery__img" />
-
+				<img src={imgUrl(images[current])} alt={`${name} ${current + 1}`} className="pd-gallery__img" />
 				{images.length > 1 && (
 					<>
-						<button className="pd-gallery__arrow pd-gallery__arrow--left" onClick={prev} aria-label="Previous">
+						<button className="pd-gallery__arrow pd-gallery__arrow--left" onClick={prev}>
 							<ChevronLeft size={20} strokeWidth={2.5} />
 						</button>
-						<button className="pd-gallery__arrow pd-gallery__arrow--right" onClick={next} aria-label="Next">
+						<button className="pd-gallery__arrow pd-gallery__arrow--right" onClick={next}>
 							<ChevronRight size={20} strokeWidth={2.5} />
 						</button>
 						<div className="pd-gallery__dots">
@@ -230,7 +81,6 @@ function ImageGallery({ images, name }: { images: string[]; name: string }) {
 									key={i}
 									className={`pd-gallery__dot${i === current ? ' active' : ''}`}
 									onClick={() => setCurrent(i)}
-									aria-label={`Image ${i + 1}`}
 								/>
 							))}
 						</div>
@@ -238,7 +88,6 @@ function ImageGallery({ images, name }: { images: string[]; name: string }) {
 				)}
 			</div>
 
-			{/* Thumbnails */}
 			{images.length > 1 && (
 				<div className="pd-gallery__thumbs">
 					{images.map((img, i) => (
@@ -247,7 +96,7 @@ function ImageGallery({ images, name }: { images: string[]; name: string }) {
 							className={`pd-gallery__thumb${i === current ? ' active' : ''}`}
 							onClick={() => setCurrent(i)}
 						>
-							<img src={img} alt={`${name} ${i + 1}`} />
+							<img src={imgUrl(img)} alt={`${name} ${i + 1}`} />
 						</button>
 					))}
 				</div>
@@ -257,26 +106,46 @@ function ImageGallery({ images, name }: { images: string[]; name: string }) {
 }
 
 // ─── RelatedCard ──────────────────────────────────────────────────────────────
-function RelatedCard({ product }: { product: Product }) {
+function RelatedCard({ product }: { product: ApiProduct }) {
 	const navigate = useNavigate();
+	const imgUrl = product.productImages?.[0] ? `${BASE_URL}${product.productImages[0]}` : '';
 
 	return (
 		<div
 			className="pd-related-card"
 			onClick={() => {
-				navigate(`/products/${product.id}`);
+				navigate(`/products/${product._id}`);
 				window.scrollTo(0, 0);
 			}}
 		>
 			<div className="pd-related-card__img-wrap">
-				<img src={product.images?.[0] ?? product.image ?? ''} alt={product.name} />
-				<span className="pd-related-card__badge" style={{ background: BADGE_COLORS[product.collection] }}>
-					{product.collection}
+				<img src={imgUrl} alt={product.productName} />
+				<span
+					className="pd-related-card__badge"
+					style={{ background: BADGE_COLORS[product.productCollection] ?? '#888' }}
+				>
+					{product.productCollection}
 				</span>
 			</div>
 			<div className="pd-related-card__info">
-				<p className="pd-related-card__name">{product.name}</p>
-				<p className="pd-related-card__price">{product.price.toLocaleString()} so'm</p>
+				<p className="pd-related-card__name">{product.productName}</p>
+				<p className="pd-related-card__price">${product.productPrice}</p>
+			</div>
+		</div>
+	);
+}
+
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+function DetailSkeleton() {
+	return (
+		<div className="pd-skeleton">
+			<div className="pd-skeleton__gallery" />
+			<div className="pd-skeleton__info">
+				<div className="pd-skeleton__line pd-skeleton__line--short" />
+				<div className="pd-skeleton__line pd-skeleton__line--long" />
+				<div className="pd-skeleton__line pd-skeleton__line--med" />
+				<div className="pd-skeleton__line pd-skeleton__line--long" />
+				<div className="pd-skeleton__line pd-skeleton__line--short" />
 			</div>
 		</div>
 	);
@@ -287,18 +156,60 @@ function ProductDetail() {
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
 	const { addOrder, isOrdered } = useOrders();
+	// ProductDetail.tsx da:
+	const { token } = useAuth();
+	const { liked, likeCount, toggleLike } = useLike('PRODUCT', id ?? '', token);
 
-	const product = PRODUCTS.find((p) => p.id === Number(id));
-
-	const [selectedSize, setSelectedSize] = useState<ProductSize | null>(product?.sizes?.[0] ?? null);
-	const [liked, setLiked] = useState(false);
+	const [selectedSize, setSelectedSize] = useState<string | null>(null);
 	const [added, setAdded] = useState(false);
+
+	// fetch product
+	const {
+		data: product,
+		isLoading,
+		isError,
+	} = useQuery<ApiProduct>({
+		queryKey: ['product', id],
+		queryFn: async () => {
+			const token = localStorage.getItem('token');
+			const { data } = await axios.get(`${BASE_URL}/product/${id}`, {
+				headers: {
+					Authorization: token ? `Bearer ${token}` : '',
+				},
+			});
+			return data.data ?? data;
+		},
+		enabled: !!id,
+	});
+
+	// fetch related products
+	const { data: allProducts } = useQuery<ApiProduct[]>({
+		queryKey: ['products-all'],
+		queryFn: async () => {
+			const { data } = await api.get(`/product/${id}`);
+			return Array.isArray(data) ? data : (data.data ?? []);
+		},
+	});
 
 	useEffect(() => {
 		window.scrollTo(0, 0);
+		setAdded(false);
+		setSelectedSize(null);
 	}, [id]);
 
-	if (!product) {
+	// set default size
+	useEffect(() => {
+		if (product?.productSize) setSelectedSize(product.productSize);
+	}, [product]);
+
+	if (isLoading)
+		return (
+			<div className="pd-page">
+				<DetailSkeleton />
+			</div>
+		);
+
+	if (isError || !product) {
 		return (
 			<div className="pd-not-found">
 				<p>Product not found.</p>
@@ -307,18 +218,23 @@ function ProductDetail() {
 		);
 	}
 
-	const ordered = isOrdered(product.id);
-	const related = PRODUCTS.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 5);
+	const ordered = isOrdered(product._id as any);
+	const related = (allProducts ?? [])
+		.filter((p) => p.productCategory === product.productCategory && p._id !== product._id)
+		.slice(0, 5);
+
+	const badgeColor = BADGE_COLORS[product.productCollection] ?? '#888';
+	const catColor = CAT_COLORS[product.productCategory] ?? '#888';
 
 	const handleCart = () => {
 		if (ordered || added) return;
 		addOrder({
-			productId: product.id,
-			name: product.name,
-			price: product.price,
-			image: product.images?.[0] ?? product.image ?? '',
-			collection: product.collection,
-			category: product.category,
+			productId: product._id as any,
+			name: product.productName,
+			price: product.productPrice,
+			image: product.productImages?.[0] ? `${BASE_URL}${product.productImages[0]}` : '',
+			collection: product.productCollection,
+			category: product.productCategory,
 			size: selectedSize ?? undefined,
 		});
 		setAdded(true);
@@ -328,7 +244,7 @@ function ProductDetail() {
 		<div className="pd-page">
 			{/* ── Breadcrumb ── */}
 			<div className="pd-breadcrumb">
-				<button className="pd-back" onClick={() => navigate('/products')}>
+				<button className="pd-back" onClick={() => navigate(-1)}>
 					<ArrowLeft size={15} strokeWidth={2.5} />
 					Back
 				</button>
@@ -337,74 +253,85 @@ function ProductDetail() {
 					Products
 				</Link>
 				<span className="pd-breadcrumb__sep">/</span>
-				<span className="pd-breadcrumb__current">{product.name}</span>
+				<span className="pd-breadcrumb__current">{product.productName}</span>
 			</div>
 
 			{/* ── Main ── */}
 			<div className="pd-main">
 				{/* Gallery */}
-				<ImageGallery images={product.images ?? [product.image ?? '']} name={product.name} />
+				<ImageGallery images={product.productImages ?? []} name={product.productName} />
 
 				{/* Info */}
 				<div className="pd-info">
-					{/* Badge + name */}
+					{/* Top badges */}
 					<div className="pd-info__top">
-						<span
-							className="pd-collection-badge"
-							style={{
-								background: BADGE_COLORS[product.collection] + '18',
-								color: BADGE_COLORS[product.collection],
-								borderColor: BADGE_COLORS[product.collection] + '35',
-							}}
-						>
-							<Tag size={11} strokeWidth={2.5} />
-							{product.collection}
-						</span>
+						<div style={{ display: 'flex', gap: 8 }}>
+							<span
+								className="pd-collection-badge"
+								style={{
+									background: badgeColor + '18',
+									color: badgeColor,
+									borderColor: badgeColor + '40',
+								}}
+							>
+								<Tag size={11} strokeWidth={2.5} />
+								{product.productCollection}
+							</span>
+							<span
+								className="pd-collection-badge"
+								style={{
+									background: catColor + '18',
+									color: catColor,
+									borderColor: catColor + '40',
+								}}
+							>
+								{product.productCategory}
+							</span>
+						</div>
+
+						{/* Wishlist */}
 						<button
 							className={`pd-wishlist${liked ? ' active' : ''}`}
-							onClick={() => setLiked((v) => !v)}
+							onClick={() => toggleLike()}
 							aria-label="Wishlist"
 						>
 							<Heart size={16} strokeWidth={2} fill={liked ? 'currentColor' : 'none'} />
+							{likeCount > 0 && <span style={{ fontSize: 11, fontWeight: 700 }}>{likeCount}</span>}
 						</button>
 					</div>
 
-					<h1 className="pd-name">{product.name}</h1>
+					<h1 className="pd-name">{product.productName}</h1>
 
-					{/* Rating */}
+					{/* Views */}
 					<div className="pd-rating">
 						<div className="pd-rating__stars">
 							{Array.from({ length: 5 }).map((_, i) => (
-								<Star
-									key={i}
-									size={13}
-									strokeWidth={0}
-									fill={i < Math.floor(product.rating ?? 0) ? '#f59e0b' : '#e5e7eb'}
-								/>
+								<Star key={i} size={13} strokeWidth={0} fill={i < 4 ? '#f59e0b' : '#e5e7eb'} />
 							))}
 						</div>
-						<span className="pd-rating__score">{product.rating}</span>
-						<span className="pd-rating__count">({product.reviews} reviews)</span>
+						<span className="pd-rating__count">{product.productViews} views</span>
+						{product.productLeftCount <= 10 && (
+							<span style={{ fontSize: 11, color: '#ef4444', fontWeight: 600 }}>
+								Only {product.productLeftCount} left!
+							</span>
+						)}
 					</div>
 
 					{/* Price */}
-					<div className="pd-price">
-						{product.price.toLocaleString()}
-						<span className="pd-price__unit"> so'm</span>
-					</div>
+					<div className="pd-price">${product.productPrice}</div>
 
 					{/* Description */}
-					<p className="pd-description">{product.description}</p>
+					{product.productDesc && <p className="pd-description">{product.productDesc}</p>}
 
-					{/* Size selector */}
-					{product.sizes && product.sizes.length > 0 && (
+					{/* Size */}
+					{product.productSize && (
 						<div className="pd-sizes">
 							<p className="pd-sizes__label">
 								Size
 								{selectedSize && <span className="pd-sizes__selected">{selectedSize}</span>}
 							</p>
 							<div className="pd-sizes__row">
-								{product.sizes.map((size) => (
+								{['XS', 'S', 'M', 'L', 'XL', 'XXL'].map((size) => (
 									<button
 										key={size}
 										className={`pd-size-btn${selectedSize === size ? ' active' : ''}`}
@@ -417,7 +344,7 @@ function ProductDetail() {
 						</div>
 					)}
 
-					{/* Actions */}
+					{/* Cart */}
 					<div className="pd-actions">
 						<button
 							className={`pd-cart-btn${added || ordered ? ' added' : ''}`}
@@ -454,13 +381,13 @@ function ProductDetail() {
 				</div>
 			</div>
 
-			{/* ── Related products ── */}
+			{/* ── Related ── */}
 			{related.length > 0 && (
 				<div className="pd-related">
 					<h2 className="pd-related__title">Related Products</h2>
 					<div className="pd-related__grid">
 						{related.map((p) => (
-							<RelatedCard key={p.id} product={p} />
+							<RelatedCard key={p._id} product={p} />
 						))}
 					</div>
 				</div>

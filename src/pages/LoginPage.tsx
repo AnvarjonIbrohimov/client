@@ -1,7 +1,9 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { BASE_URL } from '../libs/config';
 import '../css/Auth.css';
 
 function Login() {
@@ -26,14 +28,21 @@ function Login() {
 		}
 		setLoading(true);
 		try {
-			// TODO: replace with real API call
-			// const res = await api.post('/member/login', form);
-			// login(res.data.member, res.data.accessToken);
-			await new Promise((r) => setTimeout(r, 800)); // mock delay
-			login({ _id: '6a059c32504396f3d43a7409', memberNick: form.memberNick }, 'mock-token');
+			const { data } = await axios.post(`${BASE_URL}/member/login`, {
+				memberNick: form.memberNick,
+				memberPassword: form.memberPassword,
+			});
+			console.log('Login response:', data);
+
+			// backend: { member: {...}, accessToken: "..." }
+			const member = data.data.member;
+			const accessToken = data.data.accessToken;
+
+			login(member, accessToken);
 			navigate('/');
-		} catch {
-			setError('Incorrect nickname or password.');
+		} catch (err: any) {
+			const msg = err?.response?.data?.message ?? 'Incorrect nickname or password.';
+			setError(msg);
 		} finally {
 			setLoading(false);
 		}
@@ -61,7 +70,6 @@ function Login() {
 				{error && <div className="auth-error">{error}</div>}
 
 				<form className="auth-form" onSubmit={handleSubmit} noValidate>
-					{/* Nickname */}
 					<div className="auth-field">
 						<label className="auth-field__label">
 							<User size={12} strokeWidth={2.5} />
@@ -79,7 +87,6 @@ function Login() {
 						/>
 					</div>
 
-					{/* Password */}
 					<div className="auth-field">
 						<label className="auth-field__label">
 							<Lock size={12} strokeWidth={2.5} />
@@ -95,12 +102,7 @@ function Login() {
 								className="auth-field__input"
 								autoComplete="current-password"
 							/>
-							<button
-								type="button"
-								className="auth-field__pw-toggle"
-								onClick={() => setShowPw((v) => !v)}
-								aria-label={showPw ? 'Hide password' : 'Show password'}
-							>
+							<button type="button" className="auth-field__pw-toggle" onClick={() => setShowPw((v) => !v)}>
 								{showPw ? <EyeOff size={15} strokeWidth={2} /> : <Eye size={15} strokeWidth={2} />}
 							</button>
 						</div>
@@ -111,8 +113,7 @@ function Login() {
 							<span className="auth-submit__spinner" />
 						) : (
 							<>
-								Sign in
-								<ArrowRight size={15} strokeWidth={2.5} />
+								Sign in <ArrowRight size={15} strokeWidth={2.5} />
 							</>
 						)}
 					</button>

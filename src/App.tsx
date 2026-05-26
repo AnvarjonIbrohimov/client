@@ -30,7 +30,7 @@ function App() {
 								<Route path="/users" element={<UsersPage />} />
 								<Route path="/help" element={<HelpPage />} />
 
-								<Route path="/products/:id" element={<ProductDetail />} />
+								<Route path="/product/:id" element={<ProductDetail />} />
 
 								{/* AUTH ROUTES */}
 								<Route path="/login" element={<Login />} />
