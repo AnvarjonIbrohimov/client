@@ -35,7 +35,7 @@
 /* ─── Flip card container ────────────────────────────────────────────────── */
 .brand-card {
 	position: relative;
-	height: 140px;
+	height: 160px;
 	cursor: pointer;
 	/* 3D perspective */
 	perspective: 900px;
@@ -85,8 +85,8 @@
 	max-width: 100%;
 	max-height: 100%;
 	object-fit: contain;
-	filter: grayscale(100%);
-	opacity: 0.55;
+	filter: grayscale(0%); /* ← 100% dan 0% ga */
+	opacity: 1; /* ← 0.55 dan 1 ga */
 	transition:
 		filter 0.2s,
 		opacity 0.2s;
@@ -211,5 +211,83 @@
 @media (max-width: 500px) {
 	.brands-grid {
 		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+/* ─── Back top row ───────────────────────────────────────────────────────── */
+.brand-card__back-top {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+/* ─── Like button ────────────────────────────────────────────────────────── */
+.brand-card__like {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	background: rgba(255, 255, 255, 0.2);
+	border: none;
+	border-radius: 20px;
+	padding: 3px 8px;
+	color: rgba(255, 255, 255, 0.8);
+	cursor: pointer;
+	font-size: 10px;
+	font-weight: 700;
+	transition: all 0.15s;
+}
+
+.brand-card__like:hover {
+	background: rgba(255, 255, 255, 0.35);
+	color: #ffffff;
+}
+
+.brand-card__like.liked {
+	color: #ffffff;
+	background: rgba(255, 255, 255, 0.35);
+}
+
+/* ─── Info icon (SVG) ────────────────────────────────────────────────────── */
+.brand-card__info-icon {
+	flex-shrink: 0;
+	margin-top: 1px;
+	color: rgba(255, 255, 255, 0.8);
+}
+
+/* ─── Logo placeholder ───────────────────────────────────────────────────── */
+.brand-card__logo-placeholder {
+	width: 60px;
+	height: 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #fff4f0;
+	border-radius: 8px;
+	font-family: 'Syne', sans-serif;
+	font-size: 16px;
+	font-weight: 800;
+	color: #ff6b35;
+}
+
+/* ─── Skeleton ───────────────────────────────────────────────────────────── */
+.brand-card--skeleton {
+	pointer-events: none;
+}
+
+.brand-skeleton__body {
+	position: absolute;
+	inset: 0;
+	border-radius: 12px;
+	background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+	background-size: 200% 100%;
+	animation: brand-shimmer 1.4s infinite;
+}
+
+@keyframes brand-shimmer {
+	0% {
+		background-position: 200% 0;
+	}
+	100% {
+		background-position: -200% 0;
 	}
 }
