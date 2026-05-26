@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useOrders } from '../context/OrderContext';
+import { api, BASE_URL } from '../libs/config';
 import '../css/MyPage.css';
 
 // ─── Avatar ───────────────────────────────────────────────────────────────────
@@ -23,24 +24,32 @@ function Avatar({
 	src,
 	nick,
 	onFileChange,
+	uploading,
 }: {
 	src?: string;
 	nick: string;
 	onFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
+	uploading: boolean;
 }) {
 	const fileRef = useRef<HTMLInputElement>(null);
 	const initials = nick.slice(0, 2).toUpperCase();
 
+	const imageUrl = src ? (src.startsWith('blob:') || src.startsWith('http') ? src : `${BASE_URL}${src}`) : null;
+
 	return (
 		<div className="mp-avatar-wrap">
 			<div className="mp-avatar" onClick={() => fileRef.current?.click()}>
-				{src ? (
-					<img src={src} alt={nick} className="mp-avatar__img" />
+				{imageUrl ? (
+					<img src={imageUrl} alt={nick} className="mp-avatar__img" />
 				) : (
 					<span className="mp-avatar__initials">{initials}</span>
 				)}
 				<div className="mp-avatar__overlay">
-					<Camera size={18} strokeWidth={2} />
+					{uploading ? (
+						<Loader size={18} strokeWidth={2} className="mp-avatar__spinner" />
+					) : (
+						<Camera size={18} strokeWidth={2} />
+					)}
 				</div>
 			</div>
 			<input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={onFileChange} />
@@ -83,6 +92,7 @@ function Field({
 	placeholder,
 	onChange,
 	textarea,
+	disabled,
 }: {
 	icon: React.ReactNode;
 	label: string;
@@ -92,6 +102,7 @@ function Field({
 	placeholder?: string;
 	onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 	textarea?: boolean;
+	disabled?: boolean;
 }) {
 	return (
 		<div className="mp-field">
@@ -107,6 +118,7 @@ function Field({
 					onChange={onChange}
 					className="mp-field__input mp-field__textarea"
 					rows={3}
+					disabled={disabled}
 				/>
 			) : (
 				<input
@@ -116,6 +128,7 @@ function Field({
 					placeholder={placeholder}
 					onChange={onChange}
 					className="mp-field__input"
+					disabled={disabled}
 				/>
 			)}
 		</div>
@@ -124,7 +137,7 @@ function Field({
 
 // ─── MyPage ───────────────────────────────────────────────────────────────────
 function MyPage() {
-	const { user, updateUser } = useAuth();
+	const { user, updateUser, token } = useAuth();
 	const { orders } = useOrders();
 
 	const [form, setForm] = useState({
@@ -135,10 +148,12 @@ function MyPage() {
 		memberDesc: user?.memberDesc ?? '',
 	});
 	const [preview, setPreview] = useState<string>(user?.memberImage ?? '');
-	const [saved, setSaved] = useState(false);
 	const [editing, setEditing] = useState(false);
+	const [saving, setSaving] = useState(false);
+	const [saved, setSaved] = useState(false);
+	const [uploading, setUploading] = useState(false);
+	const [error, setError] = useState('');
 
-	// sync if user changes externally
 	useEffect(() => {
 		if (user) {
 			setForm({
@@ -152,29 +167,62 @@ function MyPage() {
 		}
 	}, [user]);
 
-	// order stats
 	const pausedCount = orders.filter((o) => o.status === 'paused').length;
 	const processCount = orders.filter((o) => o.status === 'process').length;
 	const finishedCount = orders.filter((o) => o.status === 'finished').length;
 
-	// image — instant preview without save
-	const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+	// ── Image upload — darhol backend ga ──────────────────────────────────
+	const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (!file) return;
-		const url = URL.createObjectURL(file);
-		setPreview(url);
-		updateUser({ memberImage: url }); // instant update
+
+		// instant preview
+		const blobUrl = URL.createObjectURL(file);
+		setPreview(blobUrl);
+		setUploading(true);
+		setError('');
+
+		try {
+			const formData = new FormData();
+			formData.append('memberImage', file);
+
+			const { data } = await api.post('/member/update', formData, {
+				headers: { 'Content-Type': 'multipart/form-data' },
+			});
+
+			const updatedImage = data.memberImage ?? data.data?.memberImage;
+			if (updatedImage) {
+				updateUser({ memberImage: updatedImage });
+				setPreview(updatedImage);
+			}
+		} catch {
+			setError('Failed to upload image.');
+			setPreview(user?.memberImage ?? '');
+		} finally {
+			setUploading(false);
+		}
 	};
 
 	const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
 		setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 	};
 
-	const handleSave = () => {
-		updateUser({ ...form, memberImage: preview });
-		setSaved(true);
-		setEditing(false);
-		setTimeout(() => setSaved(false), 2500);
+	// ── Save profile ──────────────────────────────────────────────────────
+	const handleSave = async () => {
+		setSaving(true);
+		setError('');
+		try {
+			const { data } = await api.post('/member/update', form);
+			const updated = data.data ?? data;
+			updateUser(updated);
+			setSaved(true);
+			setEditing(false);
+			setTimeout(() => setSaved(false), 2500);
+		} catch {
+			setError('Failed to save changes.');
+		} finally {
+			setSaving(false);
+		}
 	};
 
 	if (!user) {
@@ -188,10 +236,25 @@ function MyPage() {
 
 	return (
 		<div className="mp-page">
+			{error && (
+				<div
+					style={{
+						background: '#fff5f5',
+						border: '1.5px solid #fecaca',
+						borderRadius: 10,
+						padding: '10px 14px',
+						fontSize: 12,
+						color: '#ef4444',
+						fontWeight: 500,
+					}}
+				>
+					{error}
+				</div>
+			)}
+
 			{/* ── Profile card ── */}
 			<div className="mp-profile-card">
-				<Avatar src={preview} nick={form.memberNick} onFileChange={handleImageChange} />
-
+				<Avatar src={preview} nick={form.memberNick} onFileChange={handleImageChange} uploading={uploading} />
 				<div className="mp-profile-info">
 					<div className="mp-profile-info__top">
 						<div>
@@ -252,6 +315,7 @@ function MyPage() {
 						value={form.memberNick}
 						placeholder="Your nickname"
 						onChange={handleChange}
+						disabled={!editing}
 					/>
 					<Field
 						icon={<Phone size={13} strokeWidth={2} />}
@@ -260,6 +324,7 @@ function MyPage() {
 						value={form.memberPhone}
 						placeholder="+82 10 0000 0000"
 						onChange={handleChange}
+						disabled={!editing}
 					/>
 					<Field
 						icon={<Mail size={13} strokeWidth={2} />}
@@ -268,6 +333,7 @@ function MyPage() {
 						value={form.memberEmail}
 						placeholder="example@email.com"
 						onChange={handleChange}
+						disabled={!editing}
 					/>
 					<Field
 						icon={<MapPin size={13} strokeWidth={2} />}
@@ -276,25 +342,37 @@ function MyPage() {
 						value={form.memberAddress}
 						placeholder="Your address"
 						onChange={handleChange}
+						disabled={!editing}
 					/>
 					<Field
 						icon={<FileText size={13} strokeWidth={2} />}
 						label="About me"
 						name="memberDesc"
 						value={form.memberDesc}
-						placeholder="Tell something about yourself..."
+						placeholder="Tell something..."
 						onChange={handleChange}
+						disabled={!editing}
 						textarea
 					/>
 				</div>
 
 				{editing && (
 					<div className="mp-form-actions">
-						<button className="mp-cancel-btn" onClick={() => setEditing(false)}>
+						<button
+							className="mp-cancel-btn"
+							onClick={() => {
+								setEditing(false);
+								setError('');
+							}}
+						>
 							Cancel
 						</button>
-						<button className="mp-save-btn" onClick={handleSave}>
-							{saved ? (
+						<button className="mp-save-btn" onClick={handleSave} disabled={saving}>
+							{saving ? (
+								<>
+									<Loader size={14} strokeWidth={2.5} /> Saving...
+								</>
+							) : saved ? (
 								<>
 									<CheckCircle size={14} strokeWidth={2.5} /> Saved!
 								</>

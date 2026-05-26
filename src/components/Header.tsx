@@ -4,6 +4,7 @@ import { Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useOrders } from '../context/OrderContext';
 import '../css/Header.css';
+import { BASE_URL } from '../libs/config';
 
 function Header() {
 	const location = useLocation();
@@ -22,6 +23,12 @@ function Header() {
 		{ path: '/products', label: 'Products' },
 		{ path: '/help', label: 'Help' },
 	];
+	// Header.tsx da avatar qismini o'zgartiring:
+	const avatarUrl = user?.memberImage
+		? user.memberImage.startsWith('http')
+			? user.memberImage
+			: `${BASE_URL}${user.memberImage}`
+		: null;
 
 	if (user) {
 		navLinks.push({ path: '/orders', label: 'Orders' }, { path: '/mypage', label: 'My Page' });
@@ -99,7 +106,22 @@ function Header() {
 				<div className="header__right">
 					{user ? (
 						<>
-							<div className="header__avatar">{initials}</div>
+							<div className="header__avatar">
+								{avatarUrl ? (
+									<img
+										src={avatarUrl}
+										alt={initials}
+										style={{
+											width: '100%',
+											height: '100%',
+											objectFit: 'cover',
+											borderRadius: '50%',
+										}}
+									/>
+								) : (
+									initials
+								)}
+							</div>
 							<button className="header__logout" onClick={logout}>
 								Logout
 							</button>

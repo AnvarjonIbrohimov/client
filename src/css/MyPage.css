@@ -397,3 +397,22 @@
 		grid-template-columns: 1fr 1fr;
 	}
 }
+
+/* ─── Disabled field ─────────────────────────────────────────────────────── */
+.mp-field__input:disabled {
+	background: #f5f5f5;
+	color: #888;
+	cursor: default;
+	border-color: #eeeeee;
+}
+
+/* ─── Avatar spinner ─────────────────────────────────────────────────────── */
+.mp-avatar__spinner {
+	animation: mp-spin 0.8s linear infinite;
+}
+
+@keyframes mp-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
