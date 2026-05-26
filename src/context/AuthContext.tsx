@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 export interface Member {
 	_id: string;
 	memberNick: string;
-	memberPhone: string;
+	memberPhone?: string;
 	memberEmail?: string;
 	memberImage?: string;
 	memberAddress?: string;

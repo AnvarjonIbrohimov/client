@@ -9,10 +9,8 @@ import {
 	Search,
 	X,
 	ChevronDown,
-	MapPin,
 	Phone,
 	Mail,
-	Clock,
 } from 'lucide-react';
 import '../css/Help.css';
 import type { FaqCategory, FaqItem } from '../types/FAQ';

@@ -9,12 +9,9 @@ import UsersPage from './pages/UsersPage';
 import OrdersPage from './pages/OrdersPage';
 import MyPage from './pages/MyPage';
 import HelpPage from './pages/Help';
-
-import LoginPage from './pages/LoginPage';
-import SignupPage from './pages/SignupPage';
-
 import ProtectedRoute from './routes/ProtectedRoute';
-
+import Login from './pages/LoginPage';
+import Signup from './pages/SignupPage';
 import { AuthProvider } from './context/AuthContext';
 
 const queryClient = new QueryClient();
@@ -33,8 +30,8 @@ function App() {
 							<Route path="/help" element={<HelpPage />} />
 
 							{/* AUTH ROUTES */}
-							<Route path="/login" element={<LoginPage />} />
-							<Route path="/signup" element={<SignupPage />} />
+							<Route path="/login" element={<Login />} />
+							<Route path="/signup" element={<Signup />} />
 
 							{/* PROTECTED ROUTES */}
 							<Route

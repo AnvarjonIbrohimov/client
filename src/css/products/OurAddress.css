@@ -4,6 +4,14 @@
 	font-family: 'DM Sans', sans-serif;
 }
 
+.our-address__info-icon {
+	color: #ff6b35;
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+	margin-top: 1px;
+}
+
 /* ─── Header ─────────────────────────────────────────────────────────────── */
 .our-address__header {
 	display: flex;

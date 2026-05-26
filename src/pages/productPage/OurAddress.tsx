@@ -1,4 +1,5 @@
 import '../../css/products/OurAddress.css';
+import { MapPin, Phone, Mail, Clock } from 'lucide-react';
 
 const ADDRESS = {
 	name: 'SMART-STORE Main Office',
@@ -39,9 +40,12 @@ function OurAddress() {
 			{/* ── Info row ── */}
 			<div className="our-address__info">
 				<div className="our-address__info-card">
-					<span className="our-address__info-icon">📍</span>
+					{/* Address */}
+					<span className="our-address__info-icon">
+						<MapPin size={18} strokeWidth={1.8} />
+					</span>
 					<div>
-						<p className="our-address__info-label">Manzil</p>
+						<p className="our-address__info-label">Address</p>
 						<p className="our-address__info-value">{ADDRESS.street}</p>
 						<p className="our-address__info-value our-address__info-value--muted">{ADDRESS.city}</p>
 					</div>
@@ -50,9 +54,12 @@ function OurAddress() {
 				<div className="our-address__divider" />
 
 				<div className="our-address__info-card">
-					<span className="our-address__info-icon">📞</span>
+					{/* Phone */}
+					<span className="our-address__info-icon">
+						<Phone size={18} strokeWidth={1.8} />
+					</span>
 					<div>
-						<p className="our-address__info-label">Telefon</p>
+						<p className="our-address__info-label">Phone</p>
 						<a href={`tel:${ADDRESS.phone}`} className="our-address__info-value our-address__info-value--link">
 							{ADDRESS.phone}
 						</a>
@@ -62,7 +69,10 @@ function OurAddress() {
 				<div className="our-address__divider" />
 
 				<div className="our-address__info-card">
-					<span className="our-address__info-icon">✉️</span>
+					{/* Email */}
+					<span className="our-address__info-icon">
+						<Mail size={18} strokeWidth={1.8} />
+					</span>
 					<div>
 						<p className="our-address__info-label">Email</p>
 						<a href={`mailto:${ADDRESS.email}`} className="our-address__info-value our-address__info-value--link">
@@ -74,9 +84,12 @@ function OurAddress() {
 				<div className="our-address__divider" />
 
 				<div className="our-address__info-card">
-					<span className="our-address__info-icon">🕐</span>
+					{/* Working Hours */}
+					<span className="our-address__info-icon">
+						<Clock size={18} strokeWidth={1.8} />
+					</span>
 					<div>
-						<p className="our-address__info-label">Ish vaqti</p>
+						<p className="our-address__info-label">Working Hours</p>
 						<p className="our-address__info-value">{ADDRESS.workingHours}</p>
 						<p className="our-address__info-value our-address__info-value--muted">{ADDRESS.weekend}</p>
 					</div>
