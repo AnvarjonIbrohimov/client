@@ -1,53 +1,187 @@
-.active-users {
-	width: 100%;
-	padding: 40px 20px;
+/* ─── Section ────────────────────────────────────────────────────────────── */
+.au-section {
+	padding: 32px 0 40px;
+	font-family: 'DM Sans', sans-serif;
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+.au-section__header {
 	display: flex;
-	flex-direction: column;
+	align-items: flex-end;
+	justify-content: space-between;
+	margin-bottom: 20px;
+}
+
+.au-section__title {
+	font-family: 'Syne', sans-serif;
+	font-size: 22px;
+	font-weight: 800;
+	color: #111111;
+	letter-spacing: -0.4px;
+	margin-bottom: 3px;
+}
+
+.au-section__sub {
+	font-size: 12px;
+	color: #aaaaaa;
+	font-weight: 500;
+}
+
+.au-section__right {
+	display: flex;
 	align-items: center;
+	gap: 8px;
 }
 
-.title {
-	font-size: 32px;
-	font-weight: bold;
-	margin-bottom: 25px;
+.au-section__count {
+	font-size: 12px;
+	font-weight: 700;
+	color: #aaaaaa;
 }
 
-/* 5 ta katta card */
-.users-grid {
+/* ─── Grid ───────────────────────────────────────────────────────────────── */
+.au-grid {
 	display: grid;
 	grid-template-columns: repeat(5, 1fr);
-	gap: 20px;
-	width: 100%;
-	max-width: 1200px;
+	gap: 12px;
 }
 
-/* CARD */
-.user-card {
-	background: #fff;
-	border-radius: 16px;
-	overflow: hidden;
-	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-	transition: 0.3s;
-	cursor: pointer;
+.au-error,
+.au-empty {
+	grid-column: 1 / -1;
 	text-align: center;
+	padding: 40px 0;
+	font-size: 13px;
+	color: #cccccc;
 }
 
-.user-card:hover {
-	transform: translateY(-6px);
-	box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+/* ─── Card ───────────────────────────────────────────────────────────────── */
+.au-card {
+	border-radius: 14px;
+	overflow: hidden;
+	background: #ffffff;
+	border: 1.5px solid #f0f0f0;
+	cursor: pointer;
+	transition:
+		transform 0.2s ease,
+		border-color 0.2s ease,
+		box-shadow 0.2s ease;
 }
 
-/* BIG IMAGE */
-.user-card img {
+.au-card:hover {
+	transform: translateY(-4px);
+	border-color: #ffcab5;
+	box-shadow: 0 8px 24px rgba(255, 107, 53, 0.1);
+}
+
+/* ─── Image ──────────────────────────────────────────────────────────────── */
+.au-card__img-wrap {
 	width: 100%;
-	height: 200px; /* 🔥 KATTA IMAGE */
+	aspect-ratio: 3 / 4;
+	overflow: hidden;
+	background: #f5f5f5;
+	position: relative;
+}
+
+.au-card__img {
+	width: 100%;
+	height: 100%;
 	object-fit: cover;
 	display: block;
+	transition: transform 0.35s ease;
 }
 
-/* NAME */
-.user-card p {
-	padding: 12px;
-	font-size: 16px;
+.au-card:hover .au-card__img {
+	transform: scale(1.06);
+}
+
+.au-card__initials {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-family: 'Syne', sans-serif;
+	font-size: 40px;
+	font-weight: 800;
+	color: #ff6b35;
+	background: linear-gradient(135deg, #fff4f0, #ffe8de);
+}
+
+/* ─── Info ───────────────────────────────────────────────────────────────── */
+.au-card__info {
+	padding: 10px 12px 12px;
+}
+
+.au-card__name {
+	font-size: 13px;
+	font-weight: 700;
+	color: #111111;
+	margin-bottom: 4px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.au-card__points {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 11px;
+	color: #f59e0b;
 	font-weight: 600;
+}
+
+/* ─── Skeleton ───────────────────────────────────────────────────────────── */
+.au-card--skeleton {
+	pointer-events: none;
+}
+
+.au-skeleton__img {
+	aspect-ratio: 3 / 4;
+	background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+	background-size: 200% 100%;
+	animation: au-shimmer 1.4s infinite;
+}
+
+.au-skeleton__line {
+	height: 10px;
+	border-radius: 5px;
+	background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+	background-size: 200% 100%;
+	animation: au-shimmer 1.4s infinite;
+	margin-bottom: 6px;
+}
+
+.au-skeleton__line--med {
+	width: 65%;
+}
+.au-skeleton__line--short {
+	width: 40%;
+}
+
+@keyframes au-shimmer {
+	0% {
+		background-position: 200% 0;
+	}
+	100% {
+		background-position: -200% 0;
+	}
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+	.au-grid {
+		grid-template-columns: repeat(4, 1fr);
+	}
+}
+@media (max-width: 768px) {
+	.au-grid {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+@media (max-width: 500px) {
+	.au-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
 }
