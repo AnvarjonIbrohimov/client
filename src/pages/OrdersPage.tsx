@@ -11,7 +11,7 @@ import {
 	Tag,
 	Calendar,
 } from 'lucide-react';
-import { useOrders, type OrderStatus } from '../context/Ordercontext';
+import { useOrders, type OrderStatus } from '../context/OrderContext';
 import '../css/orders.css';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

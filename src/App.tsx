@@ -1,8 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
 import Layout from './layout/MainLayout';
-
 import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
 import UsersPage from './pages/UsersPage';
@@ -13,6 +11,8 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import Login from './pages/LoginPage';
 import Signup from './pages/SignupPage';
 import { AuthProvider } from './context/AuthContext';
+import { OrderProvider } from './context/OrderContext';
+import ProductDetail from './pages/Productdetail';
 
 const queryClient = new QueryClient();
 
@@ -20,40 +20,44 @@ function App() {
 	return (
 		<QueryClientProvider client={queryClient}>
 			<AuthProvider>
-				<BrowserRouter>
-					<Routes>
-						<Route element={<Layout />}>
-							{/* PUBLIC ROUTES */}
-							<Route path="/" element={<HomePage />} />
-							<Route path="/products" element={<ProductsPage />} />
-							<Route path="/users" element={<UsersPage />} />
-							<Route path="/help" element={<HelpPage />} />
+				<OrderProvider>
+					<BrowserRouter>
+						<Routes>
+							<Route element={<Layout />}>
+								{/* PUBLIC ROUTES */}
+								<Route path="/" element={<HomePage />} />
+								<Route path="/products" element={<ProductsPage />} />
+								<Route path="/users" element={<UsersPage />} />
+								<Route path="/help" element={<HelpPage />} />
 
-							{/* AUTH ROUTES */}
-							<Route path="/login" element={<Login />} />
-							<Route path="/signup" element={<Signup />} />
+								<Route path="/products/:id" element={<ProductDetail />} />
 
-							{/* PROTECTED ROUTES */}
-							<Route
-								path="/orders"
-								element={
-									<ProtectedRoute>
-										<OrdersPage />
-									</ProtectedRoute>
-								}
-							/>
+								{/* AUTH ROUTES */}
+								<Route path="/login" element={<Login />} />
+								<Route path="/signup" element={<Signup />} />
 
-							<Route
-								path="/mypage"
-								element={
-									<ProtectedRoute>
-										<MyPage />
-									</ProtectedRoute>
-								}
-							/>
-						</Route>
-					</Routes>
-				</BrowserRouter>
+								{/* PROTECTED ROUTES */}
+								<Route
+									path="/orders"
+									element={
+										<ProtectedRoute>
+											<OrdersPage />
+										</ProtectedRoute>
+									}
+								/>
+
+								<Route
+									path="/mypage"
+									element={
+										<ProtectedRoute>
+											<MyPage />
+										</ProtectedRoute>
+									}
+								/>
+							</Route>
+						</Routes>
+					</BrowserRouter>
+				</OrderProvider>
 			</AuthProvider>
 		</QueryClientProvider>
 	);

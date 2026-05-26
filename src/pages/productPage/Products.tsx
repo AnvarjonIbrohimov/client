@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import '../../css/products/product.css';
-import { useOrders } from '../../context/Ordercontext';
+import { useOrders } from '../../context/OrderContext';
 import { BADGE_COLORS, CATEGORIES, COLLECTIONS, SIZE_CATEGORIES, type Product } from '../../types/product';
 import { ProductCategory, ProductCollection, ProductSize } from '../../enums/prodcut.enum';
+import { useNavigate } from 'react-router-dom';
 
 // ─── Mock Data ───────────────────────────────────────────────────────────────
 const PRODUCTS: Product[] = [
@@ -143,6 +144,7 @@ function ProductCard({ product }: { product: Product }) {
 	const [viewed, setViewed] = useState(false);
 	const { addOrder, isOrdered } = useOrders();
 	const ordered = isOrdered(product.id);
+	const navigate = useNavigate();
 
 	const handleCart = () => {
 		if (ordered) return;
@@ -158,7 +160,7 @@ function ProductCard({ product }: { product: Product }) {
 	};
 
 	return (
-		<div className="p-card">
+		<div className="p-card" onClick={() => navigate(`/products/${product.id}`)}>
 			<div className="p-card__image-box">
 				<img src={product.image} alt={product.name} />
 

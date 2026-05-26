@@ -5,10 +5,15 @@ export interface Product {
 	id: number;
 	name: string;
 	price: number;
-	image: string;
+	image?: string;
+	images?: string[];
 	collection: ProductCollection;
 	category: ProductCategory;
 	sizes?: ProductSize[];
+	description?: string; // ← qo'shing
+	rating?: number; // ← qo'shing
+	reviews?: number; // ← qo'shing
+	inStock?: boolean; // ← qo'shing
 }
 
 // ─── Constants ───────────────────────────────────────────────────────────────

@@ -1,0 +1,278 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap');
+
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+.header {
+	background: #ff6b35;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+	position: sticky;
+	top: 0;
+	z-index: 200;
+	font-family: 'DM Sans', sans-serif;
+}
+
+.header__inner {
+	max-width: 1280px;
+	margin: 0 auto;
+	padding: 0 32px;
+	height: 62px;
+	display: flex;
+	align-items: center;
+	gap: 32px;
+}
+
+/* ─── Logo ───────────────────────────────────────────────────────────────── */
+.header__logo {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	text-decoration: none;
+	flex-shrink: 0;
+}
+
+.header__logo-dot {
+	width: 30px;
+	height: 30px;
+	border-radius: 8px;
+	background: #ff6b35;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	transition: background 0.15s;
+}
+
+.header__logo:hover .header__logo-dot {
+	background: #e55a28;
+}
+
+.header__logo-name {
+	font-family: 'Syne', sans-serif;
+	font-size: 15px;
+	font-weight: 800;
+	color: #ffffff;
+	letter-spacing: -0.3px;
+	line-height: 1.1;
+}
+
+.header__logo-name span {
+	color: #ff6b35;
+}
+
+.header__logo-sub {
+	font-size: 9px;
+	font-weight: 500;
+	color: rgba(255, 255, 255, 0.6);
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+/* ─── Nav ────────────────────────────────────────────────────────────────── */
+.header__nav {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	flex: 1;
+}
+
+.header__nav-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 6px 14px;
+	border-radius: 20px;
+	font-size: 12.5px;
+	font-weight: 600;
+	color: rgba(255, 255, 255, 0.75);
+	text-decoration: none;
+	transition: all 0.15s;
+	border: 1px solid transparent;
+	white-space: nowrap;
+}
+
+.header__nav-link:hover {
+	color: #ffffff;
+	background: rgba(255, 255, 255, 0.15);
+}
+
+.header__nav-link.active {
+	color: #ffffff;
+	background: rgba(255, 255, 255, 0.2);
+	border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* ─── Orders badge ───────────────────────────────────────────────────────── */
+.header__badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 17px;
+	height: 17px;
+	border-radius: 20px;
+	padding: 0 4px;
+	font-size: 9px;
+	font-weight: 800;
+	line-height: 1;
+}
+
+.header__badge--paused {
+	background: rgba(255, 255, 255, 0.25);
+	color: #ffffff;
+	border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.header__badge--process {
+	background: rgba(255, 255, 255, 0.25);
+	color: #ffffff;
+	border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.header__badge--finished {
+	background: rgba(255, 255, 255, 0.25);
+	color: #ffffff;
+	border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* ─── Right side ─────────────────────────────────────────────────────────── */
+.header__right {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-shrink: 0;
+}
+
+.header__avatar {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: #ff6b35;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 11px;
+	font-weight: 800;
+	color: #ffffff;
+	border: 2px solid rgba(255, 255, 255, 0.1);
+	cursor: pointer;
+	transition: border-color 0.15s;
+}
+
+.header__avatar:hover {
+	border-color: rgba(255, 107, 53, 0.5);
+}
+
+.header__logout {
+	padding: 6px 14px;
+	border-radius: 20px;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	background: transparent;
+	color: rgba(255, 255, 255, 0.85);
+	border-color: rgba(255, 255, 255, 0.3);
+	font-size: 11.5px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.15s;
+	font-family: 'DM Sans', sans-serif;
+}
+
+.header__logout:hover {
+	border-color: #ffffff;
+	color: #ffffff;
+}
+
+.header__login {
+	padding: 6px 14px;
+	border-radius: 20px;
+	color: rgba(255, 255, 255, 0.85);
+	border-color: rgba(255, 255, 255, 0.3);
+	font-size: 11.5px;
+	font-weight: 600;
+	text-decoration: none;
+	transition: all 0.15s;
+}
+
+.header__login:hover {
+	color: #ffffff;
+	border-color: rgba(255, 255, 255, 0.3);
+}
+
+.header__signup {
+	padding: 6px 16px;
+	border-radius: 20px;
+	border: none;
+	background: #ffffff;
+	color: #ff6b35;
+	font-size: 11.5px;
+	font-weight: 700;
+	text-decoration: none;
+	transition: background 0.15s;
+}
+
+.header__signup:hover {
+	background: rgba(255, 255, 255, 0.9);
+}
+
+/* ─── Burger (mobile only) ───────────────────────────────────────────────── */
+.header__burger {
+	display: none;
+	background: none;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 8px;
+	width: 34px;
+	height: 34px;
+	align-items: center;
+	justify-content: center;
+	color: rgba(255, 255, 255, 0.6);
+	cursor: pointer;
+	transition: all 0.15s;
+}
+
+.header__burger:hover {
+	border-color: rgba(255, 107, 53, 0.4);
+	color: #ff6b35;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+	.header__inner {
+		padding: 0 20px;
+		gap: 0;
+	}
+
+	.header__burger {
+		display: flex;
+		margin-left: 8px;
+	}
+
+	.header__nav {
+		display: none;
+		position: absolute;
+		top: 62px;
+		left: 0;
+		right: 0;
+		background: #0d0d14;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+		flex-direction: column;
+		align-items: flex-start;
+		padding: 12px 20px 16px;
+		gap: 4px;
+	}
+
+	.header__nav.open {
+		display: flex;
+	}
+
+	.header__nav-link {
+		width: 100%;
+		padding: 9px 14px;
+		border-radius: 8px;
+	}
+
+	.header__login,
+	.header__logout {
+		display: none;
+	}
+
+	.header__signup {
+		display: none;
+	}
+}

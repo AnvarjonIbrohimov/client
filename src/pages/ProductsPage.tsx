@@ -1,10 +1,10 @@
-import OurAddress from "./productPage/OurAddress";
-import OurBrands from "./productPage/OurBrands";
-import Products from "./productPage/Producrs";
+import OurAddress from './productPage/OurAddress';
+import OurBrands from './productPage/OurBrands';
+import Products from './productPage/Products';
 
 function ProductsPage() {
 	return (
-		<div>
+		<div className="container" style={{ padding: '24px 40px' }}>
 			<Products />
 			<OurBrands />
 			<OurAddress />

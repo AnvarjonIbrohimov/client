@@ -1,14 +1,14 @@
-import { createContext, useContext, useEffect, useState,type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 export type OrderStatus = 'paused' | 'process' | 'finished';
 
 export interface OrderItem {
-	id: string; // unique order id
+	id: string;
 	productId: number;
 	name: string;
 	price: number;
-	image: string;
+	image?: string; // ← ? qo'shing
 	collection: string;
 	category: string;
 	size?: string;

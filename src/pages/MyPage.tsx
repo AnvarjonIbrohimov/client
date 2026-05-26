@@ -15,7 +15,7 @@ import {
 	Edit3,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useOrders } from '../context/Ordercontext';
+import { useOrders } from '../context/OrderContext';
 import '../css/MyPage.css';
 
 // ─── Avatar ───────────────────────────────────────────────────────────────────
