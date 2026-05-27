@@ -136,7 +136,7 @@ function OrderCard({ order }: { order: ReturnType<typeof useOrders>['orders'][0]
 							</div>
 						</div>
 						<div className="order-card__right">
-							<span className="order-card__price">{order.price.toLocaleString()} $</span>
+							<span className="order-card__price">{(order.price ?? 0).toLocaleString()} $</span>
 							<button className="order-card__delete" onClick={() => removeOrder(order.id)} aria-label="Remove order">
 								<Trash2 size={13} strokeWidth={2} />
 							</button>

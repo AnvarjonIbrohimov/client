@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { BASE_URL } from '../libs/config';
+import { api } from '../libs/config';
 
 type TargetType = 'PRODUCT' | 'BRAND';
 
@@ -10,39 +9,36 @@ interface UseLikeReturn {
 	toggleLike: () => Promise<void>;
 	isLoading: boolean;
 }
-// useLike.ts
+
 export function useLike(targetType: TargetType, targetId: string, token: string | null): UseLikeReturn {
 	const [liked, setLiked] = useState(false);
 	const [likeCount, setLikeCount] = useState(0);
 	const [isLoading, setIsLoading] = useState(false);
 
-
-	const headers = {
-		Authorization: token ? `Bearer ${token}` : '',
-	};
-
 	// ── Fetch initial like status + count ──────────────────────────────────
 	useEffect(() => {
-		if (!targetId) return;
+		if (!targetId || !token) return;
 
 		const fetchLikeData = async () => {
 			try {
-				// like count
-				const countRes = await axios.get(`${BASE_URL}/count/${targetType}/${targetId}`, { headers });
-				setLikeCount(countRes.data?.count ?? countRes.data ?? 0);
+				// like count — { success: true, data: { likeCount: N } }
+				const countRes = await api.get(`/count/${targetType}/${targetId}`);
+				const count =
+					countRes.data?.data?.likeCount ?? countRes.data?.likeCount ?? countRes.data?.count ?? countRes.data ?? 0;
+				setLikeCount(typeof count === 'number' ? count : 0);
 
-				// check if user liked
-				if (token) {
-					const checkRes = await axios.get(`${BASE_URL}/check/${targetType}/${targetId}`, { headers });
-					setLiked(checkRes.data?.liked ?? checkRes.data ?? false);
-				}
+				// check if liked — { success: true, data: { isLiked: true/false } }
+				const checkRes = await api.get(`/check/${targetType}/${targetId}`);
+				const isLiked =
+					checkRes.data?.data?.isLiked ?? checkRes.data?.isLiked ?? checkRes.data?.liked ?? checkRes.data ?? false;
+				setLiked(Boolean(isLiked));
 			} catch {
-				// silently fail — like is not critical
+				// silently fail
 			}
 		};
 
 		fetchLikeData();
-	}, [targetId, targetType]);
+	}, [targetId, targetType, token]);
 
 	// ── Toggle like ────────────────────────────────────────────────────────
 	const toggleLike = async () => {
@@ -56,9 +52,9 @@ export function useLike(targetType: TargetType, targetId: string, token: string 
 		setLikeCount((prev) => (wasLiked ? prev - 1 : prev + 1));
 
 		try {
-			await axios.post(`${BASE_URL}/toggle`, { targetType, targetId }, { headers });
+			await api.post('/toggle', { targetType, targetId });
 		} catch {
-			// rollback on error
+			// rollback
 			setLiked(wasLiked);
 			setLikeCount((prev) => (wasLiked ? prev + 1 : prev - 1));
 		} finally {

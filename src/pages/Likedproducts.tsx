@@ -24,9 +24,10 @@ interface ApiProduct {
 // ─── API ──────────────────────────────────────────────────────────────────────
 const fetchLikedProducts = async (): Promise<ApiProduct[]> => {
 	const { data } = await api.get('/my-products');
-	return Array.isArray(data) ? data : (data.data ?? []);
+	const items = Array.isArray(data) ? data : (data.data ?? []);
+	// ← product ichidan oling:
+	return items.map((item: any) => item.product ?? item).filter(Boolean);
 };
-
 // ─── Badge colors ─────────────────────────────────────────────────────────────
 const BADGE_COLORS: Record<string, string> = {
 	POPULAR: '#FF6B35',

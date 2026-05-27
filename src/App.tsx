@@ -13,7 +13,7 @@ import Signup from './pages/SignupPage';
 import { AuthProvider } from './context/AuthContext';
 import { OrderProvider } from './context/OrderContext';
 import ProductDetail from './pages/Productdetail';
-import LikedProducts from './pages/LikedProducts';
+import LikedProducts from './pages/Likedproducts';
 
 const queryClient = new QueryClient();
 
