@@ -315,6 +315,7 @@ function ProductDetail() {
 								Only {product.productLeftCount} left!
 							</span>
 						)}
+						{product.productLeftCount === 0 && <span>Out of stock</span>}
 					</div>
 
 					{/* Price */}

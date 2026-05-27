@@ -6,8 +6,7 @@ import '../../css/home/Clothes.css';
 import { useOrders } from '../../context/OrderContext';
 import { useLike } from '../../hooks/useLike';
 import { useAuth } from '../../context/AuthContext';
-import { api, BASE_URL } from '../../libs/config';
-
+import { api, BASE_URL, getImageUrl } from '../../libs/config';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Product {
@@ -50,9 +49,7 @@ function ClothesCard({ product }: { product: Product }) {
 	const { token } = useAuth();
 	const { liked, likeCount, toggleLike } = useLike('PRODUCT', product._id, token);
 
-	const imageUrl = product.productImages?.[0]
-		? `${BASE_URL}${product.productImages[0]}`
-		: 'https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=400&q=80';
+	const imageUrl = getImageUrl(product.productImages?.[0]);
 
 	const handleLike = (e: React.MouseEvent) => {
 		e.stopPropagation();

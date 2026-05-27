@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Heart, Eye, ShoppingCart, ArrowRight, CheckCircle } from 'lucide-react';
-import { api, BASE_URL } from '../../libs/config';
+import { api, BASE_URL, getImageUrl } from '../../libs/config';
 import { useOrders } from '../../context/OrderContext';
 import { useLike } from '../../hooks/useLike';
 import { useAuth } from '../../context/AuthContext';
@@ -38,9 +38,7 @@ function BookCard({ product }: { product: Product }) {
 	const ordered = isOrdered(product._id as any);
 	const { liked, likeCount, toggleLike } = useLike('PRODUCT', product._id, token);
 
-	const imageUrl = product.productImages?.[0]
-		? `${BASE_URL}${product.productImages[0]}`
-		: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&q=80';
+	const imageUrl = getImageUrl(product.productImages?.[0]);
 
 	const handleLike = (e: React.MouseEvent) => {
 		e.stopPropagation();

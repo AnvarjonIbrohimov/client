@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Heart, ShoppingCart, CheckCircle, ArrowLeft } from 'lucide-react';
-import { api, BASE_URL } from '../libs/config';
+import { api, BASE_URL, getImageUrl } from '../libs/config';
 import { useOrders } from '../context/OrderContext';
 import { useAuth } from '../context/AuthContext';
 import { useLike } from '../hooks/useLike';
@@ -44,9 +44,7 @@ function LikedCard({ product, onUnlike }: { product: ApiProduct; onUnlike: () =>
 	const ordered = isOrdered(product._id as any);
 	const { liked, toggleLike } = useLike('PRODUCT', product._id, token);
 
-	const imageUrl = product.productImages?.[0]
-		? `${BASE_URL}${product.productImages[0]}`
-		: 'https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=400&q=80';
+	const imageUrl = getImageUrl(product.productImages?.[0]);
 
 	const badgeColor = BADGE_COLORS[product.productCollection] ?? '#888';
 
