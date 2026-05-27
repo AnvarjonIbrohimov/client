@@ -1,8 +1,8 @@
 import { useState, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { Heart, ShoppingCart, CheckCircle } from 'lucide-react';
-import { api, BASE_URL, getImageUrl } from '../../libs/config';
+import { Heart, ShoppingCart, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { api, getImageUrl } from '../../libs/config';
 import { useOrders } from '../../context/OrderContext';
 import { useAuth } from '../../context/AuthContext';
 import { useLike } from '../../hooks/useLike';
@@ -25,7 +25,10 @@ interface ApiProduct {
 	productStatus: string;
 }
 
-// ─── API fetch ────────────────────────────────────────────────────────────────
+// ─── Constants ────────────────────────────────────────────────────────────────
+const ITEMS_PER_PAGE = 10;
+
+// ─── API ──────────────────────────────────────────────────────────────────────
 const fetchProducts = async (): Promise<ApiProduct[]> => {
 	const { data } = await api.get('/product/all');
 	return Array.isArray(data) ? data : (data.data ?? []);
@@ -51,9 +54,7 @@ function ProductCard({ product }: { product: ApiProduct }) {
 	const { token } = useAuth();
 	const ordered = isOrdered(product._id as any);
 	const { liked, toggleLike } = useLike('PRODUCT', product._id, token);
-
 	const imageUrl = getImageUrl(product.productImages?.[0]);
-
 	const badgeColor = BADGE_COLORS[product.productCollection] ?? '#888';
 
 	const handleCart = (e: React.MouseEvent) => {
@@ -79,18 +80,15 @@ function ProductCard({ product }: { product: ApiProduct }) {
 		<div className="p-card" onClick={() => navigate(`/product/${product._id}`)}>
 			<div className="p-card__image-box">
 				<img src={imageUrl} alt={product.productName} />
-
 				<span className="p-card__badge" style={{ backgroundColor: badgeColor }}>
 					{product.productCollection}
 				</span>
-
 				<div className="p-card__icons">
 					<button className={`p-card__icon-btn${liked ? ' active-like' : ''}`} onClick={handleLike} aria-label="Like">
 						<Heart size={12} strokeWidth={2} fill={liked ? 'currentColor' : 'none'} />
 					</button>
 				</div>
 			</div>
-
 			<div className="p-card__content">
 				<h3 className="p-card__name">{product.productName}</h3>
 				<div className="p-card__bottom">
@@ -121,8 +119,9 @@ function Products() {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [searchInput, setSearchInput] = useState('');
 	const [selectedCategory, setSelectedCategory] = useState<ProductCategory>(ProductCategory.MEN);
-	const [selectedCollection, setSelectedCollection] = useState<ProductCollection>(ProductCollection.POPULAR);
+	const [selectedCollection, setSelectedCollection] = useState<ProductCollection | null>(null);
 	const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
+	const [currentPage, setCurrentPage] = useState(1);
 	const searchRef = useRef<HTMLInputElement>(null);
 
 	const showSizes = SIZE_CATEGORIES.has(selectedCategory);
@@ -139,25 +138,37 @@ function Products() {
 	const handleCategoryChange = (cat: ProductCategory) => {
 		setSelectedCategory(cat);
 		setSelectedSize(null);
+		setCurrentPage(1);
+	};
+
+	const handleCollectionChange = (coll: ProductCollection | null) => {
+		setSelectedCollection(coll);
+		setCurrentPage(1);
 	};
 
 	const handleSizeClick = (size: ProductSize) => {
 		setSelectedSize((prev) => (prev === size ? null : size));
+		setCurrentPage(1);
 	};
 
 	const handleSearch = () => {
 		setSearchQuery(searchInput.trim());
+		setCurrentPage(1);
 	};
 
-	// filter
+	// ── Filter ────────────────────────────────────────────────────────────
 	const filtered = (Array.isArray(allProducts) ? allProducts : []).filter((p) => {
 		if (p.productCategory !== selectedCategory) return false;
-		if (p.productCollection !== selectedCollection) return false;
+		if (selectedCollection && p.productCollection !== selectedCollection) return false; // ← faqat shu qolsin
 		if (searchQuery && !p.productName.toLowerCase().includes(searchQuery.toLowerCase())) return false;
 		if (selectedSize && p.productSize !== selectedSize) return false;
 		if (p.productStatus === 'HIDDEN') return false;
 		return true;
 	});
+
+	// ── Pagination ────────────────────────────────────────────────────────
+	const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+	const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
 	return (
 		<div className="products-page">
@@ -169,7 +180,6 @@ function Products() {
 					</span>
 					<span className="products-header__sub">Online-shop</span>
 				</div>
-
 				<div className="products-header__search">
 					<input
 						ref={searchRef}
@@ -219,12 +229,26 @@ function Products() {
 			<div className="products-main">
 				{/* Collection sidebar */}
 				<aside className="products-sidebar">
+					<button
+						className={`products-sidebar__btn${selectedCollection === null ? ' active' : ''}`}
+						style={
+							selectedCollection === null ? { borderColor: '#111', color: '#111', backgroundColor: '#11111110' } : {}
+						}
+						onClick={() => handleCollectionChange(null)}
+					>
+						<span
+							className="products-sidebar__dot"
+							style={{ backgroundColor: selectedCollection === null ? '#111' : undefined }}
+						/>
+						All
+					</button>
+
 					{COLLECTIONS.map(({ value, label, color }) => (
 						<button
 							key={value}
 							className={`products-sidebar__btn${selectedCollection === value ? ' active' : ''}`}
 							style={selectedCollection === value ? { borderColor: color, color, backgroundColor: color + '1A' } : {}}
-							onClick={() => setSelectedCollection(value)}
+							onClick={() => handleCollectionChange(value)}
 						>
 							<span
 								className="products-sidebar__dot"
@@ -236,15 +260,50 @@ function Products() {
 				</aside>
 
 				{/* Product grid */}
-				<div className="products-grid">
-					{isLoading && Array.from({ length: 10 }).map((_, i) => <ProductSkeleton key={i} />)}
+				<div className="products-grid-wrap">
+					<div className="products-grid">
+						{isLoading && Array.from({ length: 10 }).map((_, i) => <ProductSkeleton key={i} />)}
 
-					{isError && <div className="products-grid__empty">Failed to load products.</div>}
+						{isError && <div className="products-grid__empty">Failed to load products.</div>}
 
-					{!isLoading && !isError && filtered.slice(0, 10).map((p) => <ProductCard key={p._id} product={p} />)}
+						{!isLoading && !isError && paginated.map((p) => <ProductCard key={p._id} product={p} />)}
 
-					{!isLoading && !isError && filtered.length === 0 && (
-						<div className="products-grid__empty">No products found</div>
+						{!isLoading && !isError && filtered.length === 0 && (
+							<div className="products-grid__empty">No products found</div>
+						)}
+					</div>
+
+					{/* ── Pagination ── */}
+					{!isLoading && totalPages > 1 && (
+						<div className="products-pagination">
+							<button
+								className="products-pagination__btn products-pagination__arrow"
+								onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+								disabled={currentPage === 1}
+								aria-label="Previous"
+							>
+								<ChevronLeft size={15} strokeWidth={2.5} />
+							</button>
+
+							{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+								<button
+									key={page}
+									className={`products-pagination__btn${currentPage === page ? ' active' : ''}`}
+									onClick={() => setCurrentPage(page)}
+								>
+									{page}
+								</button>
+							))}
+
+							<button
+								className="products-pagination__btn products-pagination__arrow"
+								onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+								disabled={currentPage === totalPages}
+								aria-label="Next"
+							>
+								<ChevronRight size={15} strokeWidth={2.5} />
+							</button>
+						</div>
 					)}
 				</div>
 			</div>
