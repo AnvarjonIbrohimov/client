@@ -29,6 +29,13 @@ function Header() {
 			? user.memberImage
 			: `${BASE_URL}${user.memberImage}`
 		: null;
+	const handleLogout = () => {
+		const confirmed = window.confirm('Are you sure you want to logout?');
+		if (confirmed) {
+			localStorage.removeItem('smartstore_orders'); // orders tozalash
+			logout();
+		}
+	};
 
 	if (user) {
 		navLinks.push({ path: '/orders', label: 'Orders' }, { path: '/mypage', label: 'My Page' });
@@ -122,7 +129,7 @@ function Header() {
 									initials
 								)}
 							</div>
-							<button className="header__logout" onClick={logout}>
+							<button className="header__logout" onClick={handleLogout}>
 								Logout
 							</button>
 						</>
