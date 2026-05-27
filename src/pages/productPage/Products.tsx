@@ -152,7 +152,7 @@ function Products() {
 	};
 
 	// filter
-	const filtered = (allProducts ?? []).filter((p) => {
+	const filtered = (Array.isArray(allProducts) ? allProducts : []).filter((p) => {
 		if (p.productCategory !== selectedCategory) return false;
 		if (p.productCollection !== selectedCollection) return false;
 		if (searchQuery && !p.productName.toLowerCase().includes(searchQuery.toLowerCase())) return false;

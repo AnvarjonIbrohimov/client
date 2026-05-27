@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useOrders } from '../context/OrderContext';
 import '../css/Header.css';
 import { BASE_URL } from '../libs/config';
+import { Heart } from 'lucide-react';
 
 function Header() {
 	const location = useLocation();
@@ -113,6 +114,11 @@ function Header() {
 				<div className="header__right">
 					{user ? (
 						<>
+							{user && (
+								<Link to="/liked-products" className="header__liked">
+									<Heart size={16} strokeWidth={2} />
+								</Link>
+							)}
 							<div className="header__avatar">
 								{avatarUrl ? (
 									<img

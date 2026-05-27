@@ -13,6 +13,7 @@ import Signup from './pages/SignupPage';
 import { AuthProvider } from './context/AuthContext';
 import { OrderProvider } from './context/OrderContext';
 import ProductDetail from './pages/Productdetail';
+import LikedProducts from './pages/LikedProducts';
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,14 @@ function App() {
 									element={
 										<ProtectedRoute>
 											<OrdersPage />
+										</ProtectedRoute>
+									}
+								/>
+								<Route
+									path="/liked-products"
+									element={
+										<ProtectedRoute>
+											<LikedProducts />
 										</ProtectedRoute>
 									}
 								/>

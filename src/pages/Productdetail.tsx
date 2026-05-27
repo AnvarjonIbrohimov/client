@@ -219,7 +219,7 @@ function ProductDetail() {
 	}
 
 	const ordered = isOrdered(product._id as any);
-	const related = (allProducts ?? [])
+	const related = (Array.isArray(allProducts) ? allProducts : [])
 		.filter((p) => p.productCategory === product.productCategory && p._id !== product._id)
 		.slice(0, 5);
 
