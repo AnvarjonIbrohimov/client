@@ -65,7 +65,7 @@ function Header() {
 					</div>
 					<div>
 						<div className="header__logo-name">
-							Smart<span>Store</span>
+							Smart Store
 						</div>
 						<div className="header__logo-sub">Online shop</div>
 					</div>

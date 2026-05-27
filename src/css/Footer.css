@@ -11,7 +11,7 @@
 }
 
 .footer__features-inner {
-	max-width: 1280px;
+	max-width: 1300px;
 	margin: 0 auto;
 	display: grid;
 	grid-template-columns: repeat(4, 1fr);
@@ -54,13 +54,27 @@
 }
 
 /* ─── Main ───────────────────────────────────────────────────────────────── */
+.footer__main-main {
+	background: #050508;
+}
+
 .footer__main {
-	background: #0a0a0f;
 	padding: 40px 32px 32px;
 	max-width: 100%;
 	display: grid;
 	grid-template-columns: 1.8fr 1fr 1fr 1.5fr;
 	gap: 40px;
+	max-width: 1350px;
+	margin: 0 auto;
+}
+
+.footer__bottom-inner {
+	max-width: 1300px; /* ← yangi class */
+	margin: 0 auto;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 }
 
 /* ─── Brand ──────────────────────────────────────────────────────────────── */
@@ -207,7 +221,6 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	max-width: 100%;
 }
 
 .footer__copy {
