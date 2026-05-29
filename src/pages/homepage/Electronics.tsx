@@ -60,7 +60,7 @@ function ElectronicsCard({ product }: { product: Product }) {
 			productId: product._id as any,
 			name: product.productName,
 			price: product.productPrice,
-			image: product.productImages?.[0] ? `${BASE_URL}${product.productImages[0]}` : '',
+			image: imageUrl,
 			collection: product.productCollection,
 			category: product.productCategory,
 			size: product.productSize,
