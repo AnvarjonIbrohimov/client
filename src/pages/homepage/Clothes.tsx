@@ -6,7 +6,7 @@ import '../../css/home/Clothes.css';
 import { useOrders } from '../../context/OrderContext';
 import { useLike } from '../../hooks/useLike';
 import { useAuth } from '../../context/AuthContext';
-import { api, BASE_URL, getImageUrl } from '../../libs/config';
+import { api, getImageUrl } from '../../libs/config';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Product {
@@ -45,7 +45,7 @@ function ClothesCard({ product }: { product: Product }) {
 	const navigate = useNavigate();
 	const [views, setViews] = useState(product.productViews ?? 0);
 	const { addOrder, isOrdered } = useOrders();
-	const ordered = isOrdered(product._id as any);
+	const ordered = isOrdered(product._id);
 	const { token } = useAuth();
 	const { liked, likeCount, toggleLike } = useLike('PRODUCT', product._id, token);
 
@@ -66,7 +66,7 @@ function ClothesCard({ product }: { product: Product }) {
 		e.stopPropagation();
 		if (ordered) return;
 		addOrder({
-			productId: product._id as any,
+			productId: product._id,
 			name: product.productName,
 			price: product.productPrice,
 			image: imageUrl,

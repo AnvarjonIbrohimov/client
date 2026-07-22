@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Heart, Eye, ShoppingCart, ArrowRight, CheckCircle } from 'lucide-react';
-import { api, BASE_URL, getImageUrl } from '../../libs/config';
+import { api, getImageUrl } from '../../libs/config';
 import { useOrders } from '../../context/OrderContext';
 import { useLike } from '../../hooks/useLike';
 import { useAuth } from '../../context/AuthContext';
@@ -35,7 +35,7 @@ function BookCard({ product }: { product: Product }) {
 	const [views, setViews] = useState(product.productViews ?? 0);
 	const { addOrder, isOrdered } = useOrders();
 	const { token } = useAuth();
-	const ordered = isOrdered(product._id as any);
+	const ordered = isOrdered(product._id);
 	const { liked, likeCount, toggleLike } = useLike('PRODUCT', product._id, token);
 
 	const imageUrl = getImageUrl(product.productImages?.[0]);
@@ -55,7 +55,7 @@ function BookCard({ product }: { product: Product }) {
 		e.stopPropagation();
 		if (ordered) return;
 		addOrder({
-			productId: product._id as any,
+			productId: product._id,
 			name: product.productName,
 			price: product.productPrice,
 			image: imageUrl,

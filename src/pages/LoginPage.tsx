@@ -6,6 +6,13 @@ import { useAuth } from '../context/AuthContext';
 import { BASE_URL } from '../libs/config';
 import '../css/Auth.css';
 
+const getAuthErrorMessage = (err: unknown, fallback: string) => {
+	if (axios.isAxiosError<{ message?: string }>(err)) {
+		return err.response?.data?.message ?? fallback;
+	}
+	return fallback;
+};
+
 function Login() {
 	const { login } = useAuth();
 	const navigate = useNavigate();
@@ -32,17 +39,14 @@ function Login() {
 				memberNick: form.memberNick,
 				memberPassword: form.memberPassword,
 			});
-			console.log('Login response:', data);
-
 			// backend: { member: {...}, accessToken: "..." }
 			const member = data.data.member;
 			const accessToken = data.data.accessToken;
 
 			login(member, accessToken);
 			navigate('/');
-		} catch (err: any) {
-			const msg = err?.response?.data?.message ?? 'Incorrect nickname or password.';
-			setError(msg);
+		} catch (err: unknown) {
+			setError(getAuthErrorMessage(err, 'Incorrect nickname or password.'));
 		} finally {
 			setLoading(false);
 		}

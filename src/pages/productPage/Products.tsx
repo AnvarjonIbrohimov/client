@@ -52,7 +52,7 @@ function ProductCard({ product }: { product: ApiProduct }) {
 	const navigate = useNavigate();
 	const { addOrder, isOrdered } = useOrders();
 	const { token } = useAuth();
-	const ordered = isOrdered(product._id as any);
+	const ordered = isOrdered(product._id);
 	const { liked, toggleLike } = useLike('PRODUCT', product._id, token);
 	const imageUrl = getImageUrl(product.productImages?.[0]);
 	const badgeColor = BADGE_COLORS[product.productCollection] ?? '#888';
@@ -61,7 +61,7 @@ function ProductCard({ product }: { product: ApiProduct }) {
 		e.stopPropagation();
 		if (ordered) return;
 		addOrder({
-			productId: product._id as any,
+			productId: product._id,
 			name: product.productName,
 			price: product.productPrice,
 			image: imageUrl,

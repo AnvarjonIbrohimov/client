@@ -1,7 +1,7 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Heart, ShoppingCart, CheckCircle, ArrowLeft } from 'lucide-react';
-import { api, BASE_URL, getImageUrl } from '../libs/config';
+import { api, getImageUrl } from '../libs/config';
 import { useOrders } from '../context/OrderContext';
 import { useAuth } from '../context/AuthContext';
 import { useLike } from '../hooks/useLike';
@@ -21,12 +21,18 @@ interface ApiProduct {
 	productLeftCount: number;
 }
 
+type LikedProductItem = ApiProduct | { product?: ApiProduct };
+
+const isApiProduct = (item: LikedProductItem): item is ApiProduct => {
+	return '_id' in item;
+};
+
 // ─── API ──────────────────────────────────────────────────────────────────────
 const fetchLikedProducts = async (): Promise<ApiProduct[]> => {
 	const { data } = await api.get('/my-products');
-	const items = Array.isArray(data) ? data : (data.data ?? []);
+	const items: Array<ApiProduct | { product?: ApiProduct }> = Array.isArray(data) ? data : (data.data ?? []);
 	// ← product ichidan oling:
-	return items.map((item: any) => item.product ?? item).filter(Boolean);
+	return items.map((item) => (isApiProduct(item) ? item : item.product)).filter((item): item is ApiProduct => Boolean(item));
 };
 // ─── Badge colors ─────────────────────────────────────────────────────────────
 const BADGE_COLORS: Record<string, string> = {
@@ -41,7 +47,7 @@ function LikedCard({ product, onUnlike }: { product: ApiProduct; onUnlike: () =>
 	const navigate = useNavigate();
 	const { addOrder, isOrdered } = useOrders();
 	const { token } = useAuth();
-	const ordered = isOrdered(product._id as any);
+	const ordered = isOrdered(product._id);
 	const { liked, toggleLike } = useLike('PRODUCT', product._id, token);
 
 	const imageUrl = getImageUrl(product.productImages?.[0]);
@@ -58,7 +64,7 @@ function LikedCard({ product, onUnlike }: { product: ApiProduct; onUnlike: () =>
 		e.stopPropagation();
 		if (ordered) return;
 		await addOrder({
-			productId: product._id as any,
+			productId: product._id,
 			name: product.productName,
 			price: product.productPrice,
 			image: imageUrl,
@@ -115,7 +121,6 @@ function LikedCardSkeleton() {
 // ─── LikedProducts ────────────────────────────────────────────────────────────
 function LikedProducts() {
 	const navigate = useNavigate();
-	const queryClient = useQueryClient();
 
 	const {
 		data: products,

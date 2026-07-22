@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { BASE_URL } from '../libs/config';
 
 const api = axios.create({
-	baseURL: 'http://localhost:3009',
+	baseURL: BASE_URL,
 	withCredentials: true,
 });
 
@@ -15,3 +16,4 @@ api.interceptors.request.use((config) => {
 });
 
 export default api;
+export const axiosInstance = api;

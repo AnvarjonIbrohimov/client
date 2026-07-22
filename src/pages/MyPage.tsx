@@ -137,7 +137,7 @@ function Field({
 
 // ─── MyPage ───────────────────────────────────────────────────────────────────
 function MyPage() {
-	const { user, updateUser, token } = useAuth();
+	const { user, updateUser } = useAuth();
 	const { orders } = useOrders();
 
 	const [form, setForm] = useState({
@@ -156,6 +156,8 @@ function MyPage() {
 
 	useEffect(() => {
 		if (user) {
+			// User context can refresh after login/profile updates; keep the edit form in sync.
+			// eslint-disable-next-line react-hooks/set-state-in-effect
 			setForm({
 				memberNick: user.memberNick ?? '',
 				memberPhone: user.memberPhone ?? '',

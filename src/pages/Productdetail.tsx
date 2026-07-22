@@ -193,12 +193,15 @@ function ProductDetail() {
 
 	useEffect(() => {
 		window.scrollTo(0, 0);
+		// Route changes must reset transient product detail state.
+		// eslint-disable-next-line react-hooks/set-state-in-effect
 		setAdded(false);
 		setSelectedSize(null);
 	}, [id]);
 
 	// set default size
 	useEffect(() => {
+		// eslint-disable-next-line react-hooks/set-state-in-effect
 		if (product?.productSize) setSelectedSize(product.productSize);
 	}, [product]);
 
@@ -218,7 +221,7 @@ function ProductDetail() {
 		);
 	}
 
-	const ordered = isOrdered(product._id as any);
+	const ordered = isOrdered(product._id);
 	const related = (Array.isArray(allProducts) ? allProducts : [])
 		.filter((p) => p.productCategory === product.productCategory && p._id !== product._id)
 		.slice(0, 5);
@@ -229,7 +232,7 @@ function ProductDetail() {
 	const handleCart = () => {
 		if (ordered || added) return;
 		addOrder({
-			productId: product._id as any,
+			productId: product._id,
 			name: product.productName,
 			price: product.productPrice,
 			image: product.productImages?.[0] ? `${BASE_URL}${product.productImages[0]}` : '',

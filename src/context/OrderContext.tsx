@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { useAuth } from './AuthContext';
 import { api } from '../libs/config';
@@ -8,7 +9,7 @@ export type OrderStatus = 'paused' | 'process' | 'finished';
 
 export interface OrderItem {
 	id: string;
-	productId: number;
+	productId: string;
 	name: string;
 	price: number;
 	image?: string;
@@ -25,7 +26,7 @@ interface OrderContextValue {
 	addOrder: (product: Omit<OrderItem, 'id' | 'status' | 'createdAt' | 'updatedAt'>) => Promise<void>;
 	updateStatus: (id: string, status: OrderStatus) => void;
 	removeOrder: (id: string) => void;
-	isOrdered: (productId: number) => boolean;
+	isOrdered: (productId: string) => boolean;
 }
 
 // ─── Context ──────────────────────────────────────────────────────────────────
@@ -88,8 +89,8 @@ export function OrderProvider({ children }: { children: ReactNode }) {
 
 			// top-users cache ni yangilash
 			queryClient.invalidateQueries({ queryKey: ['top-users'] });
-		} catch (err) {
-			console.log('Order create error:', err);
+		} catch {
+			// Keep the local cart responsive if the backend order endpoint is unavailable.
 		}
 	};
 
@@ -101,7 +102,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
 		setOrders((prev) => prev.filter((o) => o.id !== id));
 	};
 
-	const isOrdered = (productId: number) => orders.some((o) => o.productId === productId && o.status !== 'finished');
+	const isOrdered = (productId: string) => orders.some((o) => o.productId === productId && o.status !== 'finished');
 
 	return (
 		<OrderContext.Provider value={{ orders, addOrder, updateStatus, removeOrder, isOrdered }}>

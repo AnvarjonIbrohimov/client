@@ -6,6 +6,13 @@ import { useAuth } from '../context/AuthContext';
 import { BASE_URL } from '../libs/config';
 import '../css/Auth.css';
 
+const getAuthErrorMessage = (err: unknown, fallback: string) => {
+	if (axios.isAxiosError<{ message?: string }>(err)) {
+		return err.response?.data?.message ?? fallback;
+	}
+	return fallback;
+};
+
 function Signup() {
 	const { login } = useAuth();
 	const navigate = useNavigate();
@@ -57,9 +64,8 @@ function Signup() {
 
 			login(member, accessToken);
 			navigate('/');
-		} catch (err: any) {
-			const msg = err?.response?.data?.message ?? 'Something went wrong. Please try again.';
-			setErrors({ general: msg });
+		} catch (err: unknown) {
+			setErrors({ general: getAuthErrorMessage(err, 'Something went wrong. Please try again.') });
 		} finally {
 			setLoading(false);
 		}
